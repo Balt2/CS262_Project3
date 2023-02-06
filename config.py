@@ -5,8 +5,7 @@ PORT = 6000
 # Neeraj
 CLIENT_HOST = '10.228.19.172'
 
-
-
+## Wire Protocol Definitions
 # Request Types
 ACCOUNT_CREATION = 1
 ACCOUNT_DELETION = 2
