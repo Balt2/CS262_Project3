@@ -1,12 +1,9 @@
 import socket
-# INTERNAL_HOST = '127.0.0.1'
-HOST = '10.228.19.172'
-BEN_HOST = '10.228.19.141'
-PORT = 6000
+import config
 
 def create_client_socket():
     clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clientsocket.connect((BEN_HOST, PORT))
+    clientsocket.connect((config.SERVER_HOST, config.PORT))
     return clientsocket
 
 def input_message():

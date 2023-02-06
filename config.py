@@ -1,0 +1,6 @@
+# Ben
+SERVER_HOST = '10.228.19.141'
+PORT = 6000
+
+# Neeraj
+CLIENT_HOST = '10.228.19.172'
