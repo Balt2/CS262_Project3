@@ -24,21 +24,21 @@ def marshal(request_type, sender_id, receiver_id=None, message=''):
 
 def unmarshal(bdata):
     str = bdata.decode('ascii')
-    split_str = str.split("::")
-    if len(split_str) == 0 or len(split_str) > 6:
-        raise Exception("Unable to unmarshal the message %d", str)
-        return {}
+    split_str = str.split("::") 
+
+    if len(split_str) != 6:
+        raise Exception('Unable to unmarshal the message')
 
     msg = {}
     for i, item in enumerate(split_str):
         if i == 0:
-            msg['request_type'] = item
+            msg['request_type'] = int(item)
         if i == 1:
-            msg['sender_id'] = item
+            msg['sender_id'] = int(item)
         if i == 2:
-            msg['receiver_id'] = item
+            msg['receiver_id'] = int(item)
         if i == 3:
-            msg['timestamp'] = item
+            msg['timestamp'] = float(item)
         if i == 4:
             msg['message'] = item
 

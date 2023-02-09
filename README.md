@@ -14,7 +14,10 @@ Note: this project assumes the computers are on the same Internet network
 
 ## Testing
 
-TODO
+We use pytest to run the tests. To run pytest, you'll need both the 'pytest' and 'pytest-mock' libraries.
+
+1. Install the test libraries (one-time only). In the root director of the repository, run: `pip install pytest pytest-mock`
+2. Run the tests. From the command line, in the root directory of the repository, run: `pytest`
 
 ## Tasks to Complete
 
