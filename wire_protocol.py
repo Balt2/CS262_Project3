@@ -1,15 +1,18 @@
 import time
 import config
 
-def marshal(request_type, sender_id, receiver_id=None, message=''):
+def marshal(request_type, sender_id=None, receiver_id=None, message=''):
     # create a msg object of the values
     msg = {
         'request_type': request_type,
-        'sender_id': sender_id,
+        'sender_id': -1,
         'receiver_id': -1,
         'timestamp': time.time(),
         'message': message
     }
+
+    if sender_id is not None:
+        msg["sender_id"] = sender_id
 
     if receiver_id is not None:
         msg["receiver_id"] = receiver_id

@@ -8,40 +8,84 @@ def create_client_socket():
     return clientsocket
 
 def client_options_menu():
-    print("Options Menu. Please enter the number of your choice from the following options: ")
-    print(" 1. List All Users \n 2. Send Message \n 3. Delete Your Account")
+    print("\n\n----- Options Menu: please enter the number of your choice from the following options. ----- ")
+    print(" 1. Create an account \n 2. List Accounts \n 3. Send a message \n 4. Delete your account \n 5. Exit ")
 
     # capture user input, handling errors
     while True:
         try:
             data=int(input("Enter a Number: "))
             print ("You entered: ", data)
-            break;
+
+            # map user input to request types
+            if data == 1:
+                return config.ACCOUNT_CREATION
+            if data == 2:
+                return config.LIST_ACCOUNTS
+            if data == 3:
+                return config.SEND_MESSAGE
+            if data == 4:
+                return config.ACCOUNT_DELETION
+            if data == 5:
+                return config.END_SESSION
+            else:
+                print("Invalid input")
         except ValueError:
             print ("Invalid input")
-
-    # map user input to request types
-    if data == 1:
-        return config.LIST_ACCOUNTS
-    if data == 2:
-        return config.SEND_MESSAGE
-    if data == 3:
-        return config.ACCOUNT_DELETION
-    else:
-        print("Invalid input")
-        return 
     
-def input_message():
-    return str(input("Message to Send: "))
+def create_account():
+    print("create account")
+    return wire_protocol.marshal(config.ACCOUNT_CREATION)
+    
+
+def send_message():
+    print("send_message")
+    user_msg = str(input("Message to Send: "))
+    # TODO: figure out receiver and sender id
+    return wire_protocol.marshal(config.SEND_MESSAGE, 1, -1, user_msg)
+
+def list_accounts():
+    print("list accounts")
+    # TODO: figure out sender id
+    return wire_protocol.marshal(config.LIST_ACCOUNTS, 1)
+    
+
+def delete_account():
+    print("delete_account")
+    # TODO: figure out sender id
+    return wire_protocol.marshal(config.ACCOUNT_DELETION, 1)
 
 def client_main():
+    print("Starting client...")
     clientsocket = create_client_socket()
+    print("Connected.")
+
     try:
-        user_msg = input_message()
-        bmsg = wire_protocol.marshal(user_msg)
-        sent = clientsocket.send(bmsg)
-        
-        print('Message sent, %d/%d bytes transmitted' % (sent, len(user_msg)))
+        while True:
+            user_action = client_options_menu()
+
+            bmsg = b''
+            match user_action:
+                case config.ACCOUNT_CREATION:
+                    bmsg = create_account()
+
+                case config.LIST_ACCOUNTS:
+                    bmsg = list_accounts()
+
+                case config.SEND_MESSAGE:
+                    bmsg = send_message()
+
+                case config.ACCOUNT_DELETION:
+                    bmsg = delete_account()
+
+                case config.END_SESSION:
+                    break;
+            
+
+            sent = clientsocket.send(bmsg)
+            print('Message sent, %d/%d bytes transmitted' % (sent, len(bmsg)))
+    
+        # after loop, close socket
         clientsocket.close()
     except Exception as err:
         print(f"Unexpected {err=}, {type(err)=}")
