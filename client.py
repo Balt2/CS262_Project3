@@ -35,7 +35,8 @@ def client_options_menu():
     
 def create_account():
     print("create account")
-    return wire_protocol.marshal(config.ACCOUNT_CREATION)
+    username = str(input("Username: "))
+    return wire_protocol.marshal(config.ACCOUNT_CREATION, username, -1, -1)
     
 
 def send_message():
@@ -65,21 +66,32 @@ def client_main():
             user_action = client_options_menu()
 
             bmsg = b''
-            match user_action:
-                case config.ACCOUNT_CREATION:
-                    bmsg = create_account()
+            if user_action == config.ACCOUNT_CREATION:
+                bmsg = create_account()
+            elif user_action == config.LIST_ACCOUNTS:
+                bmsg = list_accounts()
+            elif user_action == config.SEND_MESSAGE:
+                bmsg = send_message()
+            elif user_action == config.ACCOUNT_DELETION:
+                bmsg = delete_account()
+            elif user_action == config.END_SESSION:
+                break;
+            
+            # match user_action:
+            #     case config.ACCOUNT_CREATION:
+            #         bmsg = create_account()
 
-                case config.LIST_ACCOUNTS:
-                    bmsg = list_accounts()
+            #     case config.LIST_ACCOUNTS:
+            #         bmsg = list_accounts()
 
-                case config.SEND_MESSAGE:
-                    bmsg = send_message()
+            #     case config.SEND_MESSAGE:
+            #         bmsg = send_message()
 
-                case config.ACCOUNT_DELETION:
-                    bmsg = delete_account()
+            #     case config.ACCOUNT_DELETION:
+            #         bmsg = delete_account()
 
-                case config.END_SESSION:
-                    break;
+            #     case config.END_SESSION:
+            #         break;
             
 
             sent = clientsocket.send(bmsg)

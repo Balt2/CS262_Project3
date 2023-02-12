@@ -42,7 +42,8 @@ class DB:
     def insertNewUser(self, username: string):
 
         # Check if the user already exists
-        if not self.doesUserExist(username):
+        if self.doesUserExist(username):
+            print("User {} already exists.".format(username))
             return
         
         # Insert the new user

@@ -21,3 +21,4 @@ Client messages will be stored with the client and queue until a server is avail
    A: We are using the string delimiter "::" for now. Eventually, we'll need to escape the user-inputted text to avoid an error if the user enters :: as part of the message.
 3. What types of request types do we need to handle in the wire protocol? What types of errors do we need to handle in the wire protocol?
 4. What is the limit to the size of the message that a user can send over our protocol? How we do handle messages that require multiple packets to be sent along the wire?
+5. For the user_id should we use a unique number, or their username. If we used unique numbers this would decrease the size of our messages but decided to use usernames as it allows us to keep track of our users more simply

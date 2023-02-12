@@ -1,12 +1,12 @@
 import time
 import config
 
-def marshal(request_type, sender_id=None, receiver_id=None, message=''):
+def marshal(request_type, sender_id = '-1', receiver_id = '-1', message=''):
     # create a msg object of the values
     msg = {
         'request_type': request_type,
-        'sender_id': -1,
-        'receiver_id': -1,
+        'sender_id': sender_id,
+        'receiver_id': receiver_id,
         'timestamp': time.time(),
         'message': message
     }
@@ -37,9 +37,9 @@ def unmarshal(bdata):
         if i == 0:
             msg['request_type'] = int(item)
         if i == 1:
-            msg['sender_id'] = int(item)
+            msg['sender_id'] = item
         if i == 2:
-            msg['receiver_id'] = int(item)
+            msg['receiver_id'] = item
         if i == 3:
             msg['timestamp'] = float(item)
         if i == 4:
