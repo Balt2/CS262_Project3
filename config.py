@@ -1,5 +1,6 @@
 # Ben
 SERVER_HOST = '10.228.19.141'
+SERVER_HOST = '10.250.133.154'
 PORT = 6000
 
 # Neeraj
