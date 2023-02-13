@@ -64,7 +64,6 @@ def log_out(sender_id: string="-1"):
     return wire_protocol.marshal(config.END_SESSION, sender_id)
 
     
-
 def delete_account(sender_id: string="-1"):
     print("delete_account")
     return wire_protocol.marshal(config.ACCOUNT_DELETION, sender_id)
