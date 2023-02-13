@@ -1,6 +1,7 @@
 import datetime
 import sqlite3
 import string
+import time
 import uuid
 
 class DB:
@@ -35,47 +36,46 @@ class DB:
         if user:
             return True
         else:
-            print("User {} does not exist.".format(username))
             return False
         
     #Insert and Delete users from account table
-    def insertNewUser(self, username: string):
+    def insertUser(self, username: string):
 
         # Check if the user already exists
         if self.doesUserExist(username):
-            print("User {} already exists.".format(username))
-            return
+            return 404, "User {} already exists.".format(username)
+            
         
         # Insert the new user
         self.current_time = datetime.datetime.now()
         self.cur.execute("INSERT INTO accounts (username, logged_in, created_at) VALUES (?, ?, ?)", (username, 1, self.current_time))
         self.con.commit()
-        print("User {} added sucsessfully".format(username))
+        return 200, username
         
 
     def deleteUser(self, username: string):
         # Check if the user already exists
         if not self.doesUserExist(username):
-            return
+            return 404, "User {} does not exist.".format(username)
         
         self.cur.execute("DELETE FROM accounts WHERE username=?", (username,))
         self.con.commit()
-        print("User {} deleted successfully.".format(username))
+        return 200, username
 
     def logIn(self, username: string):
 
         # Check if the user already exists
         if not self.doesUserExist(username):
-            return
+            return 404, "User {} does not exist.".format(username)
         
         self.cur.execute("UPDATE accounts SET logged_in = 1 WHERE username = ?", (username,))
         self.con.commit()
-        print("User {} logged in successfully.".format(username))
+        return 200, username
     
     def isUserLoggedIn(self, username: string):
         # Check if the user already exists
         if not self.doesUserExist(username):
-            return
+            return "User {} does not exist.".format(username)
         
         self.cur.execute("SELECT * FROM accounts WHERE username = ?", (username,))
         user = self.cur.fetchone()
@@ -87,41 +87,46 @@ class DB:
     def logOut(self, username: string):
         # Check if the user already exists
         if not self.doesUserExist(username):
-            return
+            return 404, "User {} does not exist.".format(username)
         
         self.cur.execute("UPDATE accounts SET logged_in = 0 WHERE username = ?", (username,))
         self.con.commit()
-        print("User {} logged out successfully.".format(username))
+        return 200, username
 
     def listAccounts(self, condition: string = "", arguments = []):
         self.cur.execute("SELECT * FROM accounts {}".format(condition), arguments)
         accounts = self.cur.fetchall()
         return accounts
 
-    def insertMessage(self, sender_username: string, receiver_username: string, content: string, created_at: string):
+    def insertMessage(self, sender_username: string, receiver_username: string, content: string):
         #Check if sender and reciever exist
         if not self.doesUserExist(sender_username):
-            return
+            return 404, "Sender {} does not exist.".format(sender_username)
         
         delivered = 0
         if not self.doesUserExist(receiver_username):
-            return
+            return 404, "Reciever {} does not exist.".format(receiver_username)
         elif self.isUserLoggedIn(receiver_username):
             delivered = 1
 
         #Create ID of message
         id = str(uuid.uuid4())
         #Insert message into table
-        self.cur.execute("INSERT INTO messages (id, sender_username, reciever_username, content, delivered, created_at) VALUES (?, ?, ?, ?, ?, ?)", ...
-                         (id, sender_username, receiver_username, content, delivered, created_at))
+        self.cur.execute("INSERT INTO messages (id, sender_username, reciever_username, content, delivered, created_at) VALUES (?, ?, ?, ?, ?, ?)", (id, sender_username, receiver_username, content, delivered, str(time.time())))
         
         self.con.commit()
-        print("Message sent successfully.")
+        return 200, "Message sent successfully."
     
     def listMessages(self, condition: string = "", arguments = []):
-        self.cur.execute("SELECT * FROM messages {}".format(condition), arguments)
-        messages = self.cur.fetchall()
-        return messages
+        try:
+            self.cur.execute("SELECT * FROM messages {}".format(condition), arguments)
+            messages = self.cur.fetchall()
+            return 200, messages
+        except sqlite3.Error as e:
+            print("An error occurred:", e.args[0])
+            return 404, e.args[0]
+
+
     
     def deleteMessagesForUser(self, username: string):
         #Check if user exists
@@ -131,7 +136,8 @@ class DB:
         self.cur.execute("DELETE FROM messages WHERE reciever_username = ?", (username,))
         self.cur.execute("DELETE FROM messages WHERE sender_username = ?", (username,))
         self.con.commit()
-        print("Messages for and to user {} deleted successfully.".format(username))
+        return "Messages for and to user {} deleted successfully.".format(username)
+
 
     def printTable(self, table_name: string):
         self.cur.execute("SELECT * FROM {}".format(table_name))
