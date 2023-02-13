@@ -13,10 +13,10 @@ def client_options_menu(logged_in_user):
     print("\n\n----- Options Menu: please enter the number of your choice from the following options. ----- ")
     menu_str = " 1. Create an account \n 2. Log in \n 3. List Accounts \n"
     if logged_in_user:
-        menu_str += " 4. Send a message \n 5. Delete your account \n 6. Log out \n"
+        menu_str += " 4. Send a message \n 5. See your messages \n 6. Delete your account \n 7. Log out \n"
     else:
-        menu_str += " 4-6: (must log in to see)  \n"
-    menu_str += " 7. Exit"
+        menu_str += " 4-7: (must log in to see)  \n"
+    menu_str += " 8. Exit"
     print(menu_str)
 
     # capture user input, handling errors
@@ -35,10 +35,12 @@ def client_options_menu(logged_in_user):
             if data == 4:
                 return config.SEND_MESSAGE
             if data == 5:
-                return config.ACCOUNT_DELETION
+                return config.RECEIVE_MESSAGE
             if data == 6:
-                return config.LOG_OUT
+                return config.ACCOUNT_DELETION
             if data == 7:
+                return config.LOG_OUT
+            if data == 8:
                 return config.END_SESSION
             else:
                 print("Invalid input")
@@ -60,6 +62,10 @@ def send_message(sender_id: string="-1"):
     user_msg = str(input("Message to Send: "))
     receiver_id = str(input("Recipient username: "))
     return wire_protocol.marshal(config.SEND_MESSAGE, sender_id, receiver_id, user_msg)
+
+def request_messages(sender_id: string="-1"):
+    print("request messages")
+    return wire_protocol.marshal(config.RECEIVE_MESSAGE, sender_id)
 
 def list_accounts():
     print("list accounts")
@@ -91,6 +97,8 @@ def client_main():
                     bmsg = list_accounts()
                 elif user_action == config.SEND_MESSAGE:
                     bmsg = send_message(sender_id=logged_in_user)
+                elif user_action == config.RECEIVE_MESSAGE:
+                    bmsg = request_messages(sender_id=logged_in_user)
                 elif user_action == config.ACCOUNT_DELETION:
                     bmsg = delete_account(sender_id=logged_in_user)
                 elif user_action == config.LOG_OUT:
@@ -135,6 +143,8 @@ def client_main():
             elif user_action == config.LIST_ACCOUNTS:
                 print(message)
             elif user_action == config.SEND_MESSAGE:
+                print(message)
+            elif user_action == config.RECEIVE_MESSAGE:
                 print(message)
             elif user_action == config.ACCOUNT_DELETION:
                 if message[0] == 200:

@@ -29,6 +29,8 @@ The client sends the message to the server with three types of information: rece
 
 There are two flows to consider. The first flow is sending a message to live (logged-in) user. The server maintains a list of IPs for all active users in the DB, so it knows where to send the incoming message to that user client. The second flow is when the client requests all messages received by that user. In this case, the client initiates the request to the server to return all messages for that user. 
 
+In both cases, we decided to use the same config request type (RECEIVE_MESSAGES) for simplicity. Ideally we would define two different types for the two flows, but in this case make do with a single request type. It reduces complexity, at the expense of mixing up the right action or response.
+
 ## Questions We Considered
 
 1. Do we want one wire protocol to handle all communication, or separate wire protocols per message type (i.e. account creation vs message sending)?
