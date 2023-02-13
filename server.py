@@ -22,7 +22,7 @@ def handleRequest(msg, db):
     elif msg_request_type == config.ACCOUNT_DELETION:
         print("Deleting account...")
         return db.deleteUser(msg['sender_id'])
-    elif msg_request_type == config.END_SESSION:
+    elif msg_request_type == config.LOG_OUT:
         print("Ending session...")
         return db.logOut(msg['sender_id'])
     elif msg_request_type == config.ERROR:

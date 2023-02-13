@@ -10,7 +10,7 @@ def create_client_socket():
 
 def client_options_menu():
     print("\n\n----- Options Menu: please enter the number of your choice from the following options. ----- ")
-    print(" 1. Create an account \n 2. Log in \n 3. List Accounts \n 4. Send a message \n 5. Delete your account \n 6. Log out ")
+    print(" 1. Create an account \n 2. Log in \n 3. List Accounts \n 4. Send a message \n 5. Delete your account \n 6. Log out \n 7. Exit ")
 
     # capture user input, handling errors
     while True:
@@ -30,6 +30,8 @@ def client_options_menu():
             if data == 5:
                 return config.ACCOUNT_DELETION
             if data == 6:
+                return config.LOG_OUT
+            if data == 7:
                 return config.END_SESSION
             else:
                 print("Invalid input")
@@ -51,8 +53,8 @@ def log_in():
 def send_message(sender_id: string="-1"):
     print("send_message")
     user_msg = str(input("Message to Send: "))
-    reciever_id = str(input("Recipient username: "))
-    return wire_protocol.marshal(config.SEND_MESSAGE, sender_id, reciever_id, user_msg)
+    receiver_id = str(input("Recipient username: "))
+    return wire_protocol.marshal(config.SEND_MESSAGE, sender_id, receiver_id, user_msg)
 
 def list_accounts():
     print("list accounts")
@@ -61,9 +63,7 @@ def list_accounts():
 
 def log_out(sender_id: string="-1"):
     print("log out")
-    return wire_protocol.marshal(config.END_SESSION, sender_id)
-
-    
+    return wire_protocol.marshal(config.LOG_OUT, sender_id)
 
 def delete_account(sender_id: string="-1"):
     print("delete_account")
@@ -89,7 +89,7 @@ def client_main():
                     bmsg = send_message(sender_id=logged_in_user)
                 elif user_action == config.ACCOUNT_DELETION:
                     bmsg = delete_account(sender_id=logged_in_user)
-                elif user_action == config.END_SESSION:
+                elif user_action == config.LOG_OUT:
                     bmsg = log_out(sender_id=logged_in_user)
                 else:
                     print("Please log out to perform this action.")
@@ -101,6 +101,9 @@ def client_main():
                     bmsg = log_in()
                 elif user_action == config.LIST_ACCOUNTS:
                     bmsg = list_accounts()
+                elif user_action == config.END_SESSION:
+                    print("Exiting...")
+                    break
                 else:
                     print("Please log in to perform this action.")
                     continue
@@ -114,7 +117,6 @@ def client_main():
             msg_response = wire_protocol.unmarshal(bdata)
 
             print('Message received: ', msg_response['message'])
-            
             
             message = eval(msg_response['message'])
 
@@ -139,7 +141,7 @@ def client_main():
                 elif message[0] == 404:
                     print("Error deleting account: ", message[1])
 
-            elif user_action == config.END_SESSION:
+            elif user_action == config.LOG_OUT:
                 if message[0] == 200:
                     print("Successfully logged out: ", message[1])
                     logged_in_user = None
@@ -147,9 +149,11 @@ def client_main():
                     print("Error logging out: ", message[1])
                         
         # after loop, close socket
+        clientsocket.shutdown(socket.SHUT_RDWR)
         clientsocket.close()
     except Exception as err:
         print(f"Unexpected {err=}, {type(err)=}")
+        clientsocket.shutdown(socket.SHUT_RDWR)
         clientsocket.close()
 
 client_main()
