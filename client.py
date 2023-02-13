@@ -58,8 +58,7 @@ def send_message(sender_id: string="-1"):
 
 def list_accounts():
     print("list accounts")
-    # TODO: figure out sender id
-    return wire_protocol.marshal(config.LIST_ACCOUNTS, 1)
+    return wire_protocol.marshal(config.LIST_ACCOUNTS)
 
 def log_out(sender_id: string="-1"):
     print("log out")
