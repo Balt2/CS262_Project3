@@ -23,8 +23,12 @@ def handleRequest(msg, db):
         print("Deleting account...")
         return db.deleteUser(msg['sender_id'])
     elif msg_request_type == config.LOG_OUT:
-        print("Ending session...")
+        print("Logging Out...")
         return db.logOut(msg['sender_id'])
+    elif msg_request_type == config.END_SESSION:
+        print("Ending session...")
+        #TODO: Remove socket from list of sockets
+        return ""
     elif msg_request_type == config.ERROR:
         print("Error...")
         return 404
@@ -48,6 +52,7 @@ def server():
             while True:
                 bdata, addr = clientsocket.recvfrom(1024)
                 print("Data from Client Socket: ", clientsocket)
+                print("BDATA: ", bdata)
                 msg = wire_protocol.unmarshal(bdata)
                 print("Got MSSG: ", msg, " from Address: ", client_addr)
 

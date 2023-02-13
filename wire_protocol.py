@@ -30,6 +30,7 @@ def unmarshal(bdata):
     split_str = str.split("::") 
 
     if len(split_str) != 6:
+        print("ERROR STR: ", str)
         raise Exception('Unable to unmarshal the message')
 
     msg = {}

@@ -79,6 +79,10 @@ def delete_account(sender_id: string="-1"):
     print("delete_account")
     return wire_protocol.marshal(config.ACCOUNT_DELETION, sender_id)
 
+def end_session():
+    print("end session")
+    return wire_protocol.marshal(config.END_SESSION)
+
 def client_main():
     print("Starting client...")
     clientsocket = create_client_socket()
@@ -114,8 +118,8 @@ def client_main():
                 elif user_action == config.LIST_ACCOUNTS:
                     bmsg = list_accounts()
                 elif user_action == config.END_SESSION:
-                    print("Exiting...")
-                    break
+                    bmsg = end_session()
+                    
                 else:
                     print("Please log in to perform this action.")
                     continue
@@ -159,6 +163,9 @@ def client_main():
                     logged_in_user = None
                 elif message[0] == 404:
                     print("Error logging out: ", message[1])
+            elif user_action == config.END_SESSION:
+                print("Ending session...")
+                break
                         
         # after loop, close socket
         clientsocket.shutdown(socket.SHUT_RDWR)
