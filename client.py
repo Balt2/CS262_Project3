@@ -8,9 +8,16 @@ def create_client_socket():
     clientsocket.connect((config.SERVER_HOST, config.PORT))
     return clientsocket
 
-def client_options_menu():
+def client_options_menu(logged_in_user):
+    # print the options menu
     print("\n\n----- Options Menu: please enter the number of your choice from the following options. ----- ")
-    print(" 1. Create an account \n 2. Log in \n 3. List Accounts \n 4. Send a message \n 5. Delete your account \n 6. Log out \n 7. Exit ")
+    menu_str = " 1. Create an account \n 2. Log in \n 3. List Accounts \n"
+    if logged_in_user:
+        menu_str += " 4. Send a message \n 5. Delete your account \n 6. Log out \n"
+    else:
+        menu_str += " 4-6: (must log in to see)  \n"
+    menu_str += " 7. Exit"
+    print(menu_str)
 
     # capture user input, handling errors
     while True:
@@ -37,8 +44,6 @@ def client_options_menu():
                 print("Invalid input")
         except ValueError:
             print ("Invalid input")
-    
-
 
 def create_account():
     print("create account")
@@ -77,11 +82,11 @@ def client_main():
     try:
         while True:
             print("Logged In User: ", logged_in_user)
-            user_action = client_options_menu()
-
+            user_action = client_options_menu(logged_in_user)
             bmsg = b''
+
+            # parse the user input and prepare the payload
             if logged_in_user:
-                
                 if user_action == config.LIST_ACCOUNTS:
                     bmsg = list_accounts()
                 elif user_action == config.SEND_MESSAGE:
@@ -107,28 +112,26 @@ def client_main():
                     print("Please log in to perform this action.")
                     continue
 
-
+            # send the payload along the wire
             sent = clientsocket.send(bmsg)
-
             print('Message sent, %d/%d bytes transmitted' % (sent, len(bmsg)))
-
             bdata, addr = clientsocket.recvfrom(1024)
-            msg_response = wire_protocol.unmarshal(bdata)
 
+            # parse the response
+            msg_response = wire_protocol.unmarshal(bdata)
+            print('!!!! msg_response: ', msg_response)
             print('Message received: ', msg_response['message'])
-            
             message = eval(msg_response['message'])
+            print("message = ", message)
 
             if user_action == config.ACCOUNT_CREATION:
                 print(message)
-
             elif user_action == config.LOG_IN:
                 if message[0] == 200:
                     logged_in_user = message[1]
                     print("Successfully logged in as: ", logged_in_user)
                 elif message[0] == 404:
                     print("Error logging in: ", message[1])
-
             elif user_action == config.LIST_ACCOUNTS:
                 print(message)
             elif user_action == config.SEND_MESSAGE:
