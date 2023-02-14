@@ -4,28 +4,28 @@ import wire_protocol
 
 class TestWireProtocol:
 
-    def test_marshal(self, mocker):
+    def test_marshal_request(self, mocker):
         mocker.patch("time.time", return_value = 12345)
-        output = wire_protocol.marshal(config.SEND_MESSAGE, 'jim', 4, "test marshal message")
+        output = wire_protocol.marshal_request(config.SEND_MESSAGE, 'jim', 4, "test marshal message")
         output_str = output.decode('ascii')
         assert output_str == '4::jim::4::12345::test marshal message::'
 
-    def test_marshal_no_sender(self, mocker):
+    def test_marshal_request_no_sender(self, mocker):
         mocker.patch("time.time", return_value = 12345)
-        output = wire_protocol.marshal(config.ACCOUNT_CREATION)
+        output = wire_protocol.marshal_request(config.ACCOUNT_CREATION)
         output_str = output.decode('ascii')
         assert output_str == "1::-1::-1::12345::::"
 
-    def test_marshal_no_receiver(self, mocker):
+    def test_marshal_request_no_receiver(self, mocker):
         mocker.patch("time.time", return_value = 12345)
-        output = wire_protocol.marshal(config.LIST_ACCOUNTS, 9)
+        output = wire_protocol.marshal_request(config.LIST_ACCOUNTS, 9)
         output_str = output.decode('ascii')
         assert output_str == "3::9::-1::12345::::"
 
-    def test_unmarshal(self, mocker):
+    def test_unmarshal_request(self, mocker):
         mocker.patch("time.time", return_value = 12345)
         msg = '3::jim::waldo::12345::test unmarshal message::'.encode('ascii')
-        output = wire_protocol.unmarshal(msg)
+        output = wire_protocol.unmarshal_request(msg)
 
         msg = {
             'request_type': 3,
@@ -37,18 +37,18 @@ class TestWireProtocol:
         
         assert output == msg
 
-    def test_unmarshal_exception_blank(self):
+    def test_unmarshal_request_exception_blank(self):
         with pytest.raises(Exception) as exception_info:
-            wire_protocol.unmarshal('')
+            wire_protocol.unmarshal_request('')
     
-    def test_unmarshal_exception_short_string(self):
+    def test_unmarshal_request_exception_short_string(self):
         with pytest.raises(Exception) as exception_info:
             test_str = '3::jim::4::12345::'.encode('ascii')
-            wire_protocol.unmarshal(test_str)
+            wire_protocol.unmarshal_request(test_str)
     
-    def test_unmarshal_exception_not_binary(self):
+    def test_unmarshal_request_exception_not_binary(self):
         with pytest.raises(Exception) as exception_info:
-            wire_protocol.unmarshal('this is not binary data')
+            wire_protocol.unmarshal_request('this is not binary data')
 
     def test_marshal_response_success(self, mocker):
         mocker.patch("time.time", return_value = 12345)

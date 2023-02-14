@@ -1,7 +1,7 @@
 import time
 import config
 
-def marshal(request_type, sender_id = '-1', receiver_id = '-1', message=''):
+def marshal_request(request_type, sender_id = '-1', receiver_id = '-1', message=''):
     # create a msg object of the values
     msg = {
         'request_type': request_type,
@@ -19,7 +19,7 @@ def marshal(request_type, sender_id = '-1', receiver_id = '-1', message=''):
     # return the marshaled string, encoded into ascii
     return marshaled_str.encode('ascii')
 
-def unmarshal(bdata):
+def unmarshal_request(bdata):
     str = bdata.decode('ascii')
     split_str = str.split("::") 
 
