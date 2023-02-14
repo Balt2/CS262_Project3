@@ -15,7 +15,7 @@ def client_options_menu(logged_in_user):
     if logged_in_user:
         menu_str += " 4. Send a message \n 5. See your messages \n 6. Delete your account \n 7. Log out \n"
     else:
-        menu_str += " 4-7: (must log in to see)  \n"
+        menu_str += " 4-7: (must log in to see) \n"
     menu_str += " 8. Exit"
     print(menu_str)
 
@@ -50,38 +50,39 @@ def client_options_menu(logged_in_user):
 def create_account():
     print("create account")
     username = str(input("Username: "))
-    return wire_protocol.marshal(config.ACCOUNT_CREATION, username, -1, -1)
+    return wire_protocol.marshal_request(config.ACCOUNT_CREATION, username, -1, -1)
 
 def log_in():
     print("log in")
     username = str(input("Username: "))
-    return wire_protocol.marshal(config.LOG_IN, username, -1, -1)
+    return wire_protocol.marshal_request(config.LOG_IN, username, -1, -1)
 
 def send_message(sender_id: string="-1"):
     print("send_message")
     user_msg = str(input("Message to Send: "))
     receiver_id = str(input("Recipient username: "))
-    return wire_protocol.marshal(config.SEND_MESSAGE, sender_id, receiver_id, user_msg)
+    return wire_protocol.marshal_request(config.SEND_MESSAGE, sender_id, receiver_id, user_msg)
 
 def request_messages(sender_id: string="-1"):
     print("request messages")
-    return wire_protocol.marshal(config.RECEIVE_MESSAGE, sender_id)
+    return wire_protocol.marshal_request(config.RECEIVE_MESSAGE, sender_id)
 
 def list_accounts():
     print("list accounts")
-    return wire_protocol.marshal(config.LIST_ACCOUNTS)
+    account_str = str(input("Search for accounts (* to see them all): "))
+    return wire_protocol.marshal_request(config.LIST_ACCOUNTS, -1, -1, account_str)
 
 def log_out(sender_id: string="-1"):
     print("log out")
-    return wire_protocol.marshal(config.LOG_OUT, sender_id)
+    return wire_protocol.marshal_request(config.LOG_OUT, sender_id)
 
 def delete_account(sender_id: string="-1"):
     print("delete_account")
-    return wire_protocol.marshal(config.ACCOUNT_DELETION, sender_id)
+    return wire_protocol.marshal_request(config.ACCOUNT_DELETION, sender_id)
 
 def end_session():
     print("end session")
-    return wire_protocol.marshal(config.END_SESSION)
+    return wire_protocol.marshal_request(config.END_SESSION)
 
 def client_main():
     print("Starting client...")

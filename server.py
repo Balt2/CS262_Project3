@@ -1,36 +1,47 @@
 import socket
 import config
+import re
 import wire_protocol
 
 from db import DB
 
 def handleRequest(msg, db):
-    msg_request_type = msg['request_type']
-    if msg_request_type == config.ACCOUNT_CREATION:
-        print("Creating account...")
-        return db.insertUser(msg['sender_id'])
-    elif msg_request_type == config.LOG_IN:
-        print("Logging in...")
-        return db.logIn(msg['sender_id'])
-    elif msg_request_type == config.LIST_ACCOUNTS:
-        print("Listing accounts...")
-        return db.listAccounts()
-    elif msg_request_type == config.SEND_MESSAGE:
-        print("Sending message...")
-        return db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'])
-    elif msg_request_type == config.ACCOUNT_DELETION:
-        print("Deleting account...")
-        return db.deleteUser(msg['sender_id'])
-    elif msg_request_type == config.LOG_OUT:
-        print("Logging Out...")
-        return db.logOut(msg['sender_id'])
-    elif msg_request_type == config.END_SESSION:
-        print("Ending session...")
-        #TODO: Remove socket from list of sockets
-        return 200, ""
+    try:
+        msg_request_type = msg['request_type']
+        if msg_request_type == config.ACCOUNT_CREATION:
+            print("Creating account...")
+            return db.insertUser(msg['sender_id'])
+        elif msg_request_type == config.LOG_IN:
+            print("Logging in...")
+            return db.logIn(msg['sender_id'])
+        elif msg_request_type == config.LIST_ACCOUNTS:
+            print("Listing accounts...")
+            search_pattern = msg['message']
+            print("search_pattern =", search_pattern)
+            response_code, accounts = db.listAccounts()
+            print("accounts! = ", accounts)
+            # filtered_accounts = (lambda: a: a[0], accounts)
+            # print("filtered_accounts! = ", filtered_accounts)
+            return response_code, accounts
+        elif msg_request_type == config.SEND_MESSAGE:
+            print("Sending message...")
+            return db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'])
+        elif msg_request_type == config.ACCOUNT_DELETION:
+            print("Deleting account...")
+            return db.deleteUser(msg['sender_id'])
+        elif msg_request_type == config.LOG_OUT:
+            print("Logging Out...")
+            return db.logOut(msg['sender_id'])
+        elif msg_request_type == config.END_SESSION:
+            print("Ending session...")
+            #TODO: Remove socket from list of sockets
+            return 200, ""
+    except Exception as err:
+        print(f"Unexpected {err=}, {type(err)=}")
+        return 404, ""
     
     print("ERROR: Request type not found...")
-    return 404, ""
+    return 404, "request type not found"
     
 def server():
     #Helpful https://realpython.com/python-sockets/
@@ -52,7 +63,7 @@ def server():
                 bdata, addr = clientsocket.recvfrom(1024)
                 print("Data from Client Socket: ", clientsocket)
                 print("BDATA: ", bdata)
-                msg = wire_protocol.unmarshal(bdata)
+                msg = wire_protocol.unmarshal_request(bdata)
                 print("Got MSSG: ", msg, " from Address: ", client_addr)
 
                 response_code, response_payload = handleRequest(msg, db)
