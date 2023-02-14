@@ -15,7 +15,6 @@ def handleRequest(msg, db):
     elif msg_request_type == config.LIST_ACCOUNTS:
         print("Listing accounts...")
         return db.listAccounts()
-        
     elif msg_request_type == config.SEND_MESSAGE:
         print("Sending message...")
         return db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'])
@@ -28,10 +27,10 @@ def handleRequest(msg, db):
     elif msg_request_type == config.END_SESSION:
         print("Ending session...")
         #TODO: Remove socket from list of sockets
-        return ""
-    elif msg_request_type == config.ERROR:
-        print("Error...")
-        return 404
+        return 200, ""
+    
+    print("ERROR: Request type not found...")
+    return 404, ""
     
 def server():
     #Helpful https://realpython.com/python-sockets/
@@ -56,9 +55,9 @@ def server():
                 msg = wire_protocol.unmarshal(bdata)
                 print("Got MSSG: ", msg, " from Address: ", client_addr)
 
-                handled_response = handleRequest(msg, db)
+                response_code, response_payload = handleRequest(msg, db)
                 
-                response = wire_protocol.marshal(msg['request_type'], 1, -1, handled_response)
+                response = wire_protocol.marshal_response(response_code, response_payload)
                 sent = clientsocket.send(response)
                 print('Server responded, %d/%d bytes transmitted' % (sent, len(response)))
 

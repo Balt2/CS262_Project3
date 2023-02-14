@@ -31,6 +31,12 @@ There are two flows to consider. The first flow is sending a message to live (lo
 
 In both cases, we decided to use the same config request type (RECEIVE_MESSAGES) for simplicity. Ideally we would define two different types for the two flows, but in this case make do with a single request type. It reduces complexity, at the expense of mixing up the right action or response.
 
+## Wire Protocol
+
+We initially used the same wire protocol for both sending and receiving. However this ended up being a problem, as we started to include fields that were specific to just one type. For example, only responses require a response code (success or failure), but we were initialy sending along a dummy response code in the request.
+
+It made more sense to separate requests from responses. Request payloads could then include the fields needed for a request while response payloads could include the fields for a response. This reduces the overall size of the payload and makes each better adapted to its use.
+
 ## Questions We Considered
 
 1. Do we want one wire protocol to handle all communication, or separate wire protocols per message type (i.e. account creation vs message sending)?

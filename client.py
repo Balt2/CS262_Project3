@@ -130,20 +130,18 @@ def client_main():
             bdata, addr = clientsocket.recvfrom(1024)
 
             # parse the response
-            msg_response = wire_protocol.unmarshal(bdata)
-            print('!!!! msg_response: ', msg_response)
-            print('Message received: ', msg_response['message'])
-            message = eval(msg_response['message'])
-            print("message = ", message)
+            response = wire_protocol.unmarshal_response(bdata)
+            response_code = response['response_code']
+            message = response['message']
 
             if user_action == config.ACCOUNT_CREATION:
                 print(message)
             elif user_action == config.LOG_IN:
-                if message[0] == 200:
-                    logged_in_user = message[1]
+                if response_code == 200:
+                    logged_in_user = message
                     print("Successfully logged in as: ", logged_in_user)
-                elif message[0] == 404:
-                    print("Error logging in: ", message[1])
+                elif response_code == 404:
+                    print("Error logging in: ", message)
             elif user_action == config.LIST_ACCOUNTS:
                 print(message)
             elif user_action == config.SEND_MESSAGE:
@@ -151,18 +149,17 @@ def client_main():
             elif user_action == config.RECEIVE_MESSAGE:
                 print(message)
             elif user_action == config.ACCOUNT_DELETION:
-                if message[0] == 200:
-                    print("Successfully deleted account: ", message[1])
+                if response_code == 200:
+                    print("Successfully deleted account: ", message)
                     logged_in_user = None
-                elif message[0] == 404:
-                    print("Error deleting account: ", message[1])
-
+                elif response_code == 404:
+                    print("Error deleting account: ", message)
             elif user_action == config.LOG_OUT:
-                if message[0] == 200:
-                    print("Successfully logged out: ", message[1])
+                if response_code == 200:
+                    print("Successfully logged out: ", message)
                     logged_in_user = None
-                elif message[0] == 404:
-                    print("Error logging out: ", message[1])
+                elif response_code == 404:
+                    print("Error logging out: ", message)
             elif user_action == config.END_SESSION:
                 print("Ending session...")
                 break

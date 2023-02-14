@@ -49,3 +49,28 @@ class TestWireProtocol:
     def test_unmarshal_exception_not_binary(self):
         with pytest.raises(Exception) as exception_info:
             wire_protocol.unmarshal('this is not binary data')
+
+    def test_marshal_response_success(self, mocker):
+        mocker.patch("time.time", return_value = 12345)
+        output = wire_protocol.marshal_response(200, "some username")
+        output_str = output.decode('ascii')
+        assert output_str == '200::12345::some username::'
+
+    def test_marshal_response_error(self, mocker):
+        mocker.patch("time.time", return_value = 12345)
+        output = wire_protocol.marshal_response(404, "")
+        output_str = output.decode('ascii')
+        assert output_str == '404::12345::::'
+
+    def test_unmarshal_response(self, mocker):
+        mocker.patch("time.time", return_value = 12345)
+        msg = '200::12345::test unmarshal response::'.encode('ascii')
+        output = wire_protocol.unmarshal_response(msg)
+
+        msg = {
+            'response_code': 200,
+            'timestamp': 12345,
+            'message': "test unmarshal response"
+        }
+        
+        assert output == msg

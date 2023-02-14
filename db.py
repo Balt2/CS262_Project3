@@ -96,7 +96,7 @@ class DB:
     def listAccounts(self, condition: string = "", arguments = []):
         self.cur.execute("SELECT * FROM accounts {}".format(condition), arguments)
         accounts = self.cur.fetchall()
-        return accounts
+        return 200, accounts
 
     def insertMessage(self, sender_username: string, receiver_username: string, content: string):
         #Check if sender and reciever exist
@@ -131,12 +131,12 @@ class DB:
     def deleteMessagesForUser(self, username: string):
         #Check if user exists
         if not self.doesUserExist(username):
-            return
+            return 404
         
         self.cur.execute("DELETE FROM messages WHERE reciever_username = ?", (username,))
         self.cur.execute("DELETE FROM messages WHERE sender_username = ?", (username,))
         self.con.commit()
-        return "Messages for and to user {} deleted successfully.".format(username)
+        return 200, "Messages for and to user {} deleted successfully.".format(username)
 
 
     def printTable(self, table_name: string):
