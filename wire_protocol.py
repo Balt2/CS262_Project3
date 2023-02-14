@@ -1,6 +1,14 @@
 import time
 import config
 
+def marshal_into_single_string(msg):
+    # convert the msg object into a single string, with :: as the delimiter between fields
+    marshaled_str = ""
+    for key in msg:
+        marshaled_str += str(msg[key]) + "::"
+    return marshaled_str
+
+
 def marshal_request(request_type, sender_id = '-1', receiver_id = '-1', message=''):
     # create a msg object of the values
     msg = {
@@ -11,12 +19,8 @@ def marshal_request(request_type, sender_id = '-1', receiver_id = '-1', message=
         'message': message
     }
         
-    # convert the msg object into a single string, with :: as the delimiter between fields
-    marshaled_str = ""
-    for key in msg:
-        marshaled_str += str(msg[key]) + "::"
-
-    # return the marshaled string, encoded into ascii
+    # return the marshaled string, encoded into ascii 
+    marshaled_str = marshal_into_single_string(msg)
     return marshaled_str.encode('ascii')
 
 def unmarshal_request(bdata):
@@ -51,12 +55,8 @@ def marshal_response(response_code = 0, message=''):
         'message': message
     }
         
-    # convert the msg object into a single string, with :: as the delimiter between fields
-    marshaled_str = ""
-    for key in msg:
-        marshaled_str += str(msg[key]) + "::"
-
-    # return the marshaled string, encoded into ascii
+    # return the marshaled string, encoded into ascii 
+    marshaled_str = marshal_into_single_string(msg)
     return marshaled_str.encode('ascii')
 
 def unmarshal_response(bdata):
