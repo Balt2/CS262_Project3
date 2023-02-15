@@ -13,9 +13,13 @@ This will be our source of truth on the accounts available.
 
 - We ran into the problem of how to send messages to users that are logged in. We decied to have a field in the DB that coressponeded to the IP of the signed in User or -1 if they were not logged in.
 
+### Clients connected to server
+
+- While writing our code to enable multiple clients to connect to our server and message back and worth we had to give our server a notion of the clients that were connected. The server than should be able to send messages to these clients and close them out when a user exits their session. We were thinking of having a dictionary on the server that had a key as the username and the clientsocket as the value.
+
 ## Client
 
-The client is responsible for interacting with the user and sending messages to the server. 
+The client is responsible for interacting with the user and sending messages to the server.
 
 ### Authentication
 
@@ -27,7 +31,7 @@ The client sends the message to the server with three types of information: rece
 
 ### Receiving Messages
 
-There are two flows to consider. The first flow is sending a message to live (logged-in) user. The server maintains a list of IPs for all active users in the DB, so it knows where to send the incoming message to that user client. The second flow is when the client requests all messages received by that user. In this case, the client initiates the request to the server to return all messages for that user. 
+There are two flows to consider. The first flow is sending a message to live (logged-in) user. The server maintains a list of IPs for all active users in the DB, so it knows where to send the incoming message to that user client. The second flow is when the client requests all messages received by that user. In this case, the client initiates the request to the server to return all messages for that user.
 
 In both cases, we decided to use the same config request type (RECEIVE_MESSAGES) for simplicity. Ideally we would define two different types for the two flows, but in this case make do with a single request type. It reduces complexity, at the expense of mixing up the right action or response.
 

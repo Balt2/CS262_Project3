@@ -2,8 +2,36 @@ import socket
 import config
 import re
 import wire_protocol
+import _thread
 
 from db import DB
+
+class ClientSocket:
+    def __init__(self, clientsocket, client_addr, db):
+        self.clientsocket = clientsocket
+        self.client_addr = client_addr
+        self.db = db
+        
+    
+    def listen(self):
+        while True:
+            bdata, addr = self.clientsocket.recvfrom(1024)
+            print("Data from Client Socket: ", self.clientsocket)
+            print("BDATA: ", bdata)
+            msg = wire_protocol.unmarshal_request(bdata)
+            print("Got MSSG: ", msg, " from Address: ", self.client_addr)
+            response_code, response_payload = handleRequest(msg, self.db)
+            response = wire_protocol.marshal_response(response_code, response_payload)
+            sent = self.clientsocket.send(response)
+            print('Server responded, %d/%d bytes transmitted' % (sent, len(response)))
+
+        self.clientsocket.close()
+    
+    def send(self, bmsg):
+        self.clientsocket.send(bmsg)
+
+    def close(self):
+        self.clientsocket.close()
 
 def handleRequest(msg, db):
     try:
@@ -56,24 +84,28 @@ def server():
         #Create DB Object
         db = DB('test.db')
         print("Server loaded DB: ")
-
+        
         s.listen()
         print("Server listening...")
-        clientsocket, client_addr = s.accept()
-        with clientsocket:
-            print('Connected by', client_addr)
-            while True:
-                bdata, addr = clientsocket.recvfrom(1024)
-                print("Data from Client Socket: ", clientsocket)
-                print("BDATA: ", bdata)
-                msg = wire_protocol.unmarshal_request(bdata)
-                print("Got MSSG: ", msg, " from Address: ", client_addr)
+        while True:
+            clientsocket, client_addr = s.accept()
+            newClient = ClientSocket(clientsocket, client_addr, db)
+            _thread.start_new_thread(newClient.listen, ())
+            
+            # with clientsocket:
+            #     print('Connected by', client_addr)
+            #     while True:
+            #         bdata, addr = clientsocket.recvfrom(1024)
+            #         print("Data from Client Socket: ", clientsocket)
+            #         print("BDATA: ", bdata)
+            #         msg = wire_protocol.unmarshal_request(bdata)
+            #         print("Got MSSG: ", msg, " from Address: ", client_addr)
 
-                response_code, response_payload = handleRequest(msg, db)
-                
-                response = wire_protocol.marshal_response(response_code, response_payload)
-                sent = clientsocket.send(response)
-                print('Server responded, %d/%d bytes transmitted' % (sent, len(response)))
+            #         response_code, response_payload = handleRequest(msg, db)
+                    
+            #         response = wire_protocol.marshal_response(response_code, response_payload)
+            #         sent = clientsocket.send(response)
+            #         print('Server responded, %d/%d bytes transmitted' % (sent, len(response)))
 
 
 server()
