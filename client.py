@@ -1,3 +1,4 @@
+import datetime
 import socket
 import string
 import config
@@ -71,7 +72,8 @@ class Client:
 
     def request_messages(self, sender_id: string="-1"):
         print("request messages")
-        return wire_protocol.marshal_request(config.RECEIVE_MESSAGE, sender_id)
+        user_msg = str(input("Messages with username: "))
+        return wire_protocol.marshal_request(config.RECEIVE_MESSAGE, sender_id, user_msg)
 
     def list_accounts(self):
         print("list accounts")
@@ -104,7 +106,15 @@ class Client:
         elif user_action == config.SEND_MESSAGE:
             print(message)
         elif user_action == config.RECEIVE_MESSAGE:
-            print(message)
+            if response_code == 200:
+                messageList = eval(message)
+                for msg in messageList:
+                    intTimestamp = int((msg[5]).split(".", 1)[0])
+                    timestamp = datetime.datetime.fromtimestamp(intTimestamp).strftime('%Y-%m-%d %H:%M:%S')
+                    print( "( " +timestamp + " ) " + msg[1] + " to " + msg[2] + " : " + msg[3])
+            elif response_code == 404:
+                print("Error retrieving messages: ", message)
+                
         elif user_action == config.ACCOUNT_DELETION:
             if response_code == 200:
                 print("Successfully deleted account: ", message)

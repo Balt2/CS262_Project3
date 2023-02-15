@@ -117,6 +117,23 @@ class DB:
         self.con.commit()
         return 200, "Message sent successfully."
     
+    def getMessagesForChat(self, username: string, receiver_username: string = None):
+        #Check if user exists
+        if not self.doesUserExist(username):
+            return 404, "User {} does not exist.".format(username)
+        
+        if not self.doesUserExist(receiver_username):
+            return 404, "User {} does not exist.".format(receiver_username)
+        #Get messages for user
+        self.cur.execute('''
+        SELECT * FROM messages 
+        WHERE (sender_username = ? AND reciever_username = ?) 
+        OR (sender_username = ? AND reciever_username = ?)
+        ORDER BY created_at ASC
+        ''', (username, receiver_username, receiver_username, username))
+        messages = self.cur.fetchall()
+        return 200, messages
+    
     def listMessages(self, condition: string = "", arguments = []):
         try:
             self.cur.execute("SELECT * FROM messages {}".format(condition), arguments)

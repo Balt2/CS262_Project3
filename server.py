@@ -26,6 +26,9 @@ def handleRequest(msg, db):
         elif msg_request_type == config.SEND_MESSAGE:
             print("Sending message...")
             return db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'])
+        elif msg_request_type == config.RECEIVE_MESSAGE:
+            print("Receiving message...")
+            return db.getMessagesForChat(msg['sender_id'], msg['receiver_id'])
         elif msg_request_type == config.ACCOUNT_DELETION:
             print("Deleting account...")
             return db.deleteUser(msg['sender_id'])
