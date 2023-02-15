@@ -3,11 +3,14 @@ import socket
 import string
 import config
 import wire_protocol
+import _thread
 
 class Client:
     def __init__(self):
         self.logged_in_user = None
         self.clientsocket = self.create_client_socket()
+        _thread.start_new_thread(self.listen_to_server, ())
+        #self.listen_to_server()
         self.client_main()
         
     def create_client_socket(self):
@@ -127,7 +130,26 @@ class Client:
                 self.logged_in_user = None
             elif response_code == 404:
                 print("Error logging out: ", message)
+        else:
+            print("FINISHED")
         
+    def listen_to_server(self, user_action = None):
+        while True:
+            bdata, addr = self.clientsocket.recvfrom(1024)
+            print("Got data while Listening: ", bdata)
+            # parse the response
+            response = wire_protocol.unmarshal_response(bdata)
+            response_code = response['response_code']
+            message = response['message']
+
+            # if user_action == config.END_SESSION:
+            #     print("Ending session...")
+            #     break
+
+            # parse the response and print the result
+            self.parse_response(user_action, response_code, message)
+            
+
     def client_main(self):
         print("Starting client...")
         print("Connected.")

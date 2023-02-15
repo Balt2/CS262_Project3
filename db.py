@@ -115,7 +115,7 @@ class DB:
         self.cur.execute("INSERT INTO messages (id, sender_username, reciever_username, content, delivered, created_at) VALUES (?, ?, ?, ?, ?, ?)", (id, sender_username, receiver_username, content, delivered, str(time.time())))
         
         self.con.commit()
-        return 200, "Message sent successfully."
+        return 200, delivered
     
     def getMessagesForChat(self, username: string, receiver_username: string = None):
         #Check if user exists
