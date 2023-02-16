@@ -9,7 +9,7 @@ from db import DB
     
 class Server:
     def __init__(self):
-        self.db = DB('test2.db')
+        self.db = DB('test3.db')
         self.sockets = {}
 
     def clientAddrToString(self, client_addr):
@@ -55,8 +55,8 @@ class Server:
                     else:
                         print("Recipient not logged in")
 
-
-                return self.db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'])
+                return response_code, message
+            
             elif msg_request_type == config.RECEIVE_MESSAGE:
                 print("Receiving message...")
                 return self.db.getMessagesForChat(msg['sender_id'], msg['receiver_id'])
@@ -96,7 +96,7 @@ class Server:
 
             response_code, response_payload = self.handleRequest(msg, client_addr, clientsocket)
             
-            response = wire_protocol.marshal_response(response_code, response_payload)
+            response = wire_protocol.marshal_response(msg['request_type'], response_code, response_payload)
             sent = clientsocket.send(response)
             print('Server responded, %d/%d bytes transmitted' % (sent, len(response)))
             

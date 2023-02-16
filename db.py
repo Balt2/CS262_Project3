@@ -115,6 +115,7 @@ class DB:
         #Create ID of message
         id = str(uuid.uuid4())
         #Insert message into table
+        print("INSERTING TO DB!, ", content)
         self.cur.execute("INSERT INTO messages (id, sender_username, reciever_username, content, delivered, created_at) VALUES (?, ?, ?, ?, ?, ?)", (id, sender_username, receiver_username, content, delivered, str(time.time())))
         
         self.con.commit()
