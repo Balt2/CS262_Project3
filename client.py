@@ -9,9 +9,10 @@ class Client:
     def __init__(self):
         self.logged_in_user = None
         self.clientsocket = self.create_client_socket()
+        self.client_main()
         _thread.start_new_thread(self.listen_to_server, ())
         #self.listen_to_server()
-        self.client_main()
+        
         
     def create_client_socket(self):
         clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -111,6 +112,7 @@ class Client:
         elif user_action == config.RECEIVE_MESSAGE:
             if response_code == 200:
                 messageList = eval(message)
+                print(messageList)
                 for msg in messageList:
                     intTimestamp = int((msg[5]).split(".", 1)[0])
                     timestamp = datetime.datetime.fromtimestamp(intTimestamp).strftime('%Y-%m-%d %H:%M:%S')
@@ -130,8 +132,6 @@ class Client:
                 self.logged_in_user = None
             elif response_code == 404:
                 print("Error logging out: ", message)
-        else:
-            print("FINISHED")
         
     def listen_to_server(self, user_action = None):
         while True:

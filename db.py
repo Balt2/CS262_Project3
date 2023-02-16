@@ -5,10 +5,13 @@ import time
 import uuid
 
 class DB:
-    def __init__(self, db_name='test.db'):
+    def __init__(self, db_name='test2.db'):
         #Will load the DB in if it exists, or create a new one with the given name if it does not exist
         self.con = sqlite3.connect(db_name, check_same_thread=False)
         self.cur = self.con.cursor()
+        self.createAccountTable()
+        self.createMessageTable()
+        
     
     #Create Tables
     def createAccountTable(self):

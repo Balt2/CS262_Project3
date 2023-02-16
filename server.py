@@ -6,18 +6,16 @@ import _thread
 
 from db import DB
 
-
-
     
 class Server:
     def __init__(self):
-        self.db = DB('test.db')
+        self.db = DB('test2.db')
         self.sockets = {}
 
     def clientAddrToString(self, client_addr):
         return str(client_addr[0]) + ":" + str(client_addr[1])
     
-    def handleRequest(self, msg, client_addr):
+    def handleRequest(self, msg, client_addr, clientsocket):
         try:
             msg_request_type = msg['request_type']
             if msg_request_type == config.ACCOUNT_CREATION:
@@ -25,14 +23,13 @@ class Server:
                 return self.db.insertUser(msg['sender_id'])
             elif msg_request_type == config.LOG_IN:
                 print("Logging in...")
-                response_code, message = self.db.logIn(msg['sender_id'])
+                response_code, username = self.db.logIn(msg['sender_id'])
 
                 if response_code == 200:
-                    key = self.clientAddrToString(client_addr)
-                    self.sockets[key][0] = message
-                    print("Logged in user in client sockets: ", self.sockets[key][0])
+                    self.sockets[username] = clientsocket
+                    print("Logged in user in client sockets: ", username)
 
-                return response_code, message
+                return response_code, username
             
             elif msg_request_type == config.LIST_ACCOUNTS:
                 print("Listing accounts...")
@@ -47,16 +44,16 @@ class Server:
                 print("Sending message...")
                 response_code, message = self.db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'])
                 if response_code == 200:
-                    print("Message sent!")
-                    if message == 1:
-                        print("Recipient Logged In")
-                        print("Sending message to recipient...")
-                        for key, value in self.sockets.items():
-                            if value[0] == msg['receiver_id']:
-                                print("Found recipient socket")
-                                print(value[1])
-                                value[1].send(wire_protocol.marshal_response(200, (msg['sender_id'], msg['message'])))
-                                break
+                    print("Message saved to DB!")
+                    
+
+                    print("Recipient Logged In")
+                    print("Sending message to recipient...")
+                    if msg['receiver_id'] in self.sockets:
+                        print("Found recipient socket")
+                        self.sockets[msg['receiver_id']].send(wire_protocol.marshal_response(200, (msg['sender_id'], msg['message'])))
+                    else:
+                        print("Recipient not logged in")
 
 
                 return self.db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'])
@@ -69,14 +66,13 @@ class Server:
             elif msg_request_type == config.LOG_OUT:
                 
                 print("Logging Out...")
-                response_code, message = self.db.logOut(msg['sender_id'])
+                response_code, username = self.db.logOut(msg['sender_id'])
 
                 if response_code == 200:
-                    key = self.clientAddrToString(client_addr)
-                    self.sockets[key][0] = message
-                    print("Logged out user: ", self.sockets[key][0])
+                    self.sockets.pop(username)
+                    print("Logged out user: ", username)
 
-                return response_code, message
+                return response_code, username
             
             elif msg_request_type == config.END_SESSION:
                 print("Ending session...")
@@ -98,7 +94,7 @@ class Server:
             msg = wire_protocol.unmarshal_request(bdata)
             print("Got MSSG: ", msg, " from Address: ", client_addr)
 
-            response_code, response_payload = self.handleRequest(msg, client_addr)
+            response_code, response_payload = self.handleRequest(msg, client_addr, clientsocket)
             
             response = wire_protocol.marshal_response(response_code, response_payload)
             sent = clientsocket.send(response)
@@ -110,15 +106,12 @@ class Server:
             s.bind((config.SERVER_HOST, config.PORT))
             print("Server up on IP: ", config.SERVER_HOST, " and port: ", config.PORT )
 
-            
-            print("Server loaded DB: ")
-
             s.listen()
             print("Server listening...")
             while True:
                 clientsocket, client_addr = s.accept()
                 print("Client connected: ", client_addr)
-                self.sockets[self.clientAddrToString(client_addr)] = ['-1', clientsocket]
+                #self.sockets[self.clientAddrToString(client_addr)] = ['-1', clientsocket]
                 print("Client IP: ", client_addr[0], " Client Port: ", client_addr[1])
                 _thread.start_new_thread(self.listen_to_client, (clientsocket, client_addr))
                 # self.sockets.append(newClient)
