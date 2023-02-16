@@ -3,12 +3,16 @@ import socket
 import string
 import config
 import wire_protocol
+import _thread
 
 class Client:
     def __init__(self):
         self.logged_in_user = None
         self.clientsocket = self.create_client_socket()
         self.client_main()
+        #_thread.start_new_thread(self.listen_to_server, ())
+        #self.listen_to_server()
+        
         
     def create_client_socket(self):
         clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -93,6 +97,7 @@ class Client:
         return wire_protocol.marshal_request(config.END_SESSION)
 
     def parse_response(self, user_action, response_code, message):
+        
         if user_action == config.ACCOUNT_CREATION:
             print(message)
         elif user_action == config.LOG_IN:
@@ -108,10 +113,11 @@ class Client:
         elif user_action == config.RECEIVE_MESSAGE:
             if response_code == 200:
                 messageList = eval(message)
+                print(messageList)
                 for msg in messageList:
                     intTimestamp = int((msg[5]).split(".", 1)[0])
                     timestamp = datetime.datetime.fromtimestamp(intTimestamp).strftime('%Y-%m-%d %H:%M:%S')
-                    print( "( " +timestamp + " ) " + msg[1] + " to " + msg[2] + " : " + msg[3])
+                    print( "( " + timestamp + " ) " + msg[1] + " to " + msg[2] + " : " + msg[3])
             elif response_code == 404:
                 print("Error retrieving messages: ", message)
                 
@@ -128,6 +134,35 @@ class Client:
             elif response_code == 404:
                 print("Error logging out: ", message)
         
+       
+            bdata, addr = self.clientsocket.recvfrom(1024)
+            #print("Got data while Listening: ", bdata)
+            # parse the response
+            response = wire_protocol.unmarshal_response(bdata)
+            response_code = response['response_code']
+            message = response['message']
+            user_action = response['response_type']
+
+            # if user_action == config.END_SESSION:
+            #     print("Ending session...")
+            #     break
+
+            # parse the response and print the result
+            self.parse_response(user_action, response_code, message)
+            
+            
+
+    def listen_to_server(self, user_action = None):
+        bdata, addr = self.clientsocket.recvfrom(1024)
+        #print("Got data while Listening: ", bdata)
+        # parse the response
+        response = wire_protocol.unmarshal_response(bdata)
+        response_code = response['response_code']
+        message = response['message']
+        user_action = response['response_type']
+        self.parse_response(user_action, response_code, message)
+            
+
     def client_main(self):
         print("Starting client...")
         print("Connected.")
@@ -170,19 +205,31 @@ class Client:
                 # send the payload along the wire
                 sent = self.clientsocket.send(bmsg)
                 print('Message sent, %d/%d bytes transmitted' % (sent, len(bmsg)))
+                # bdata, addr = self.clientsocket.recvfrom(1024)
+                
+
+                #self.listen_to_server(user_action)
+
                 bdata, addr = self.clientsocket.recvfrom(1024)
 
                 # parse the response
                 response = wire_protocol.unmarshal_response(bdata)
                 response_code = response['response_code']
                 message = response['message']
-
+                user_action = response['response_type']
+                self.parse_response(user_action, response_code, message)
+                
                 if user_action == config.END_SESSION:
                     print("Ending session...")
                     break
+                
+                #self.threaded_listener_on = True
+                #_thread.start_new_thread(self.threaded_listen_to_server, ())
+
+                continue
 
                 # parse the response and print the result
-                self.parse_response(user_action, response_code, message)
+                #self.parse_response(user_action, response_code, message)
                 
                             
             # after loop, close socket

@@ -29,6 +29,7 @@ def unmarshal_request(bdata):
 
     if len(split_str) != 6:
         print("ERROR STR: ", str)
+        
         raise Exception('Unable to unmarshal the request')
 
     msg = {}
@@ -47,10 +48,11 @@ def unmarshal_request(bdata):
     return msg
 
 
-def marshal_response(response_code = 0, message=''):
+def marshal_response(request_type, response_code = 0, message=''):
     # create a msg object of the values
     msg = {
         'response_code': response_code,
+        'response_type': request_type,
         'timestamp': time.time(),
         'message': message
     }
@@ -63,7 +65,7 @@ def unmarshal_response(bdata):
     str = bdata.decode('ascii')
     split_str = str.split("::") 
 
-    if len(split_str) != 4:
+    if len(split_str) != 5:
         print("ERROR STR: ", str)
         raise Exception('Unable to unmarshal the response')
 
@@ -72,8 +74,10 @@ def unmarshal_response(bdata):
         if i == 0:
             msg['response_code'] = int(item)
         if i == 1:
-            msg['timestamp'] = float(item)
+            msg['response_type'] = int(item)
         if i == 2:
+            msg['timestamp'] = float(item)
+        if i == 3:
             msg['message'] = item
         
     return msg

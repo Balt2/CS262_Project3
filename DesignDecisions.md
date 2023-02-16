@@ -53,3 +53,11 @@ It made more sense to separate requests from responses. Request payloads could t
 5. How should we refer to users: unique id or username?
    A: If we used unique numbers this would decrease the size of our messages but decided to use usernames as it allows us to keep track of our users more simply.
 6. Should we call eval() on message in the wire_protocal or only in instances where we know the response will be a tuple?
+
+GRPC vs. Original?
+
+How easy is it to write code?
+
+Difference in amount of code written?
+
+Size of messages?
