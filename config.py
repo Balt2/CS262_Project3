@@ -1,4 +1,4 @@
-SERVER_HOST = '10.250.133.154'
+SERVER_HOST = '100.80.62.232'
 PORT = 6000
 
 ## Wire Protocol Definitions

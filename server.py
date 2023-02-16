@@ -12,9 +12,6 @@ class Server:
         self.db = DB('test3.db')
         self.sockets = {}
 
-    def clientAddrToString(self, client_addr):
-        return str(client_addr[0]) + ":" + str(client_addr[1])
-    
     def handleRequest(self, msg, client_addr, clientsocket):
         try:
             msg_request_type = msg['request_type']
@@ -45,9 +42,6 @@ class Server:
                 response_code, message = self.db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'])
                 if response_code == 200:
                     print("Message saved to DB!")
-                    
-
-                    print("Recipient Logged In")
                     print("Sending message to recipient...")
                     if msg['receiver_id'] in self.sockets:
                         print("Found recipient socket")
@@ -76,7 +70,6 @@ class Server:
             
             elif msg_request_type == config.END_SESSION:
                 print("Ending session...")
-                #TODO: Remove socket from list of sockets
                 return 200, ""
         except Exception as err:
             print(f"Unexpected {err=}, {type(err)=}")
@@ -90,7 +83,6 @@ class Server:
         while True:
             bdata, addr = clientsocket.recvfrom(1024)
             print("Data from Client Socket: ", clientsocket)
-            print("BDATA: ", bdata)
             msg = wire_protocol.unmarshal_request(bdata)
             print("Got MSSG: ", msg, " from Address: ", client_addr)
 
@@ -111,45 +103,10 @@ class Server:
             while True:
                 clientsocket, client_addr = s.accept()
                 print("Client connected: ", client_addr)
-                #self.sockets[self.clientAddrToString(client_addr)] = ['-1', clientsocket]
                 print("Client IP: ", client_addr[0], " Client Port: ", client_addr[1])
                 _thread.start_new_thread(self.listen_to_client, (clientsocket, client_addr))
                 # self.sockets.append(newClient)
 
-# def server():
-#     #Helpful https://realpython.com/python-sockets/
-#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        
-#         s.bind((config.SERVER_HOST, config.PORT))
-#         print("Server up on IP: ", config.SERVER_HOST, " and port: ", config.PORT )
-
-#         #Create DB Object
-#         db = DB('test.db')
-#         print("Server loaded DB: ")
-
-#         s.listen()
-#         print("Server listening...")
-#         while True:
-#             clientsocket, client_addr = s.accept()
-#             newClient = ClientSocket(clientsocket, client_addr, db)
-#             _thread.start_new_thread(newClient.listen, ())
-            
-#             # with clientsocket:
-#             #     print('Connected by', client_addr)
-#             #     while True:
-#             #         bdata, addr = clientsocket.recvfrom(1024)
-#             #         print("Data from Client Socket: ", clientsocket)
-#             #         print("BDATA: ", bdata)
-#             #         msg = wire_protocol.unmarshal_request(bdata)
-#             #         print("Got MSSG: ", msg, " from Address: ", client_addr)
-
-#             #         response_code, response_payload = handleRequest(msg, db)
-                    
-#             #         response = wire_protocol.marshal_response(response_code, response_payload)
-#             #         sent = clientsocket.send(response)
-#             #         print('Server responded, %d/%d bytes transmitted' % (sent, len(response)))
-
 server = Server()
 server.start()
-#server()
 
