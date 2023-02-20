@@ -21,6 +21,15 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
 
         return response
 
+    def SendMessage(self, request, context):
+        response_code, delivered = self.db.insertMessage(
+            request.sender_id,
+            request.receiver_id,
+            request.message
+        )
+        response = messages_pb2.SendMessageResponse(response_code=response_code, delivered=delivered)
+        return response
+
     def CreateAccount(self, request, context):
         response_code, message = self.db.insertUser(request.name)
         response = messages_pb2.AccountResponse(response_code=response_code, response_text=message)

@@ -39,6 +39,9 @@ message ListAccountsResponse {
     repeated Account accounts = 1;
 }
 
+/*
+/ Send Message
+*/ 
 message SendMessageRequest {
     string sender_id = 1;
     string receiver_id = 2;

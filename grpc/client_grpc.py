@@ -46,7 +46,13 @@ class GrpcClient():
         print("send_message")
         user_msg = str(input("Message to Send: "))
         receiver_id = str(input("Receiver username: "))
-        send_message_response = self.stub.SendMessage(pb2.SendMessageRequest(sender_id=self.logged_in_user, receiver_id=receiver_id, message=user_msg))
+        send_message_response = self.stub.SendMessage(
+            pb2.SendMessageRequest(
+                sender_id=self.logged_in_user,
+                receiver_id=receiver_id,
+                message=user_msg
+            )
+        )
         print(send_message_response)
 
     def request_messages(self, sender_id: string="-1"):

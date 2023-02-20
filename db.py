@@ -9,7 +9,6 @@ class DB:
         #Will load the DB in if it exists, or create a new one with the given name if it does not exist
         self.con = sqlite3.connect(db_name, check_same_thread=False)
         self.cur = self.con.cursor()
-        print("db init function")
         self.createAccountTable()
         self.createMessageTable()
 
@@ -100,7 +99,6 @@ class DB:
     def listAccounts(self, condition: string = "", arguments = []):
         self.cur.execute("SELECT * FROM accounts {}".format(condition), arguments)
         accounts = self.cur.fetchall()
-        print("inside db, where accounts = ", accounts)
         return 200, accounts
 
     def insertMessage(self, sender_username: string, receiver_username: string, content: string):
@@ -117,7 +115,6 @@ class DB:
         #Create ID of message
         id = str(uuid.uuid4())
         #Insert message into table
-        print("INSERTING TO DB!, ", content)
         self.cur.execute("INSERT INTO messages (id, sender_username, reciever_username, content, delivered, created_at) VALUES (?, ?, ?, ?, ?, ?)", (id, sender_username, receiver_username, content, delivered, str(time.time())))
         
         self.con.commit()
