@@ -30,6 +30,20 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
         response = messages_pb2.SendMessageResponse(response_code=response_code, delivered=delivered)
         return response
 
+    def RequestMessages(self, request, context):
+        response_code, txt = self.db.getMessagesForChat(
+            request.sender_id,
+            request.receiver_id,
+        )
+        response = messages_pb2.RequestMessagesResponse(response_code=response_code)
+        if response_code == 200:
+            for msg in txt:
+                message_obj = messages_pb2.Message(sender_id=msg[1], receiver_id=msg[2], message=msg[3])
+                response.messages.append(message_obj)
+        elif response_code == 404:
+            response.error = txt
+        return response
+
     def CreateAccount(self, request, context):
         response_code, message = self.db.insertUser(request.name)
         response = messages_pb2.AccountResponse(response_code=response_code, response_text=message)

@@ -45,6 +45,11 @@ class MessageExchangeStub(object):
                 request_serializer=messages__pb2.SendMessageRequest.SerializeToString,
                 response_deserializer=messages__pb2.SendMessageResponse.FromString,
                 )
+        self.RequestMessages = channel.unary_unary(
+                '/MessageExchange/RequestMessages',
+                request_serializer=messages__pb2.RequestMessagesRequest.SerializeToString,
+                response_deserializer=messages__pb2.RequestMessagesResponse.FromString,
+                )
 
 
 class MessageExchangeServicer(object):
@@ -87,6 +92,12 @@ class MessageExchangeServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def RequestMessages(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MessageExchangeServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -119,6 +130,11 @@ def add_MessageExchangeServicer_to_server(servicer, server):
                     servicer.SendMessage,
                     request_deserializer=messages__pb2.SendMessageRequest.FromString,
                     response_serializer=messages__pb2.SendMessageResponse.SerializeToString,
+            ),
+            'RequestMessages': grpc.unary_unary_rpc_method_handler(
+                    servicer.RequestMessages,
+                    request_deserializer=messages__pb2.RequestMessagesRequest.FromString,
+                    response_serializer=messages__pb2.RequestMessagesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -230,5 +246,22 @@ class MessageExchange(object):
         return grpc.experimental.unary_unary(request, target, '/MessageExchange/SendMessage',
             messages__pb2.SendMessageRequest.SerializeToString,
             messages__pb2.SendMessageResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def RequestMessages(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/MessageExchange/RequestMessages',
+            messages__pb2.RequestMessagesRequest.SerializeToString,
+            messages__pb2.RequestMessagesResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

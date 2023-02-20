@@ -55,9 +55,16 @@ class GrpcClient():
         )
         print(send_message_response)
 
-    def request_messages(self, sender_id: string="-1"):
+    def request_messages(self):
         print("request messages")
-        # TODO
+        receiver_id = str(input("Messages with username: "))
+        request_messages_response = self.stub.RequestMessages(
+            pb2.RequestMessagesRequest(
+                sender_id=self.logged_in_user,
+                receiver_id=receiver_id
+            )
+        )
+        print(request_messages_response)
 
     def list_accounts(self):
         print("list accounts")
@@ -112,7 +119,7 @@ class GrpcClient():
             if data == 4:
                 return config.SEND_MESSAGE
             if data == 5:
-                return config.RECEIVE_MESSAGE
+                return config.REQUEST_MESSAGES
             if data == 6:
                 return config.ACCOUNT_DELETION
             if data == 7:
