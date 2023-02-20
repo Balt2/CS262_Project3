@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../CS262_Project1')
+
 import pytest
 import config
 import wire_protocol
@@ -52,23 +55,24 @@ class TestWireProtocol:
 
     def test_marshal_response_success(self, mocker):
         mocker.patch("time.time", return_value = 12345)
-        output = wire_protocol.marshal_response(200, "some username")
+        output = wire_protocol.marshal_response(5, 200, "some username")
         output_str = output.decode('ascii')
-        assert output_str == '200::12345::some username::'
+        assert output_str == '200::5::12345::some username::'
 
     def test_marshal_response_error(self, mocker):
         mocker.patch("time.time", return_value = 12345)
-        output = wire_protocol.marshal_response(404, "")
+        output = wire_protocol.marshal_response(5, 404, "")
         output_str = output.decode('ascii')
-        assert output_str == '404::12345::::'
+        assert output_str == '404::5::12345::::'
 
     def test_unmarshal_response(self, mocker):
         mocker.patch("time.time", return_value = 12345)
-        msg = '200::12345::test unmarshal response::'.encode('ascii')
+        msg = '200::5::12345::test unmarshal response::'.encode('ascii')
         output = wire_protocol.unmarshal_response(msg)
 
         msg = {
             'response_code': 200,
+            'response_type': config.REQUEST_MESSAGES,
             'timestamp': 12345,
             'message': "test unmarshal response"
         }

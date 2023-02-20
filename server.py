@@ -44,7 +44,7 @@ class Server:
                     print("Message saved to DB! Sending message to recipient...")
                     if msg['receiver_id'] in self.sockets:
                         print("Found recipient socket")
-                        self.sockets[msg['receiver_id']].send(wire_protocol.marshal_response(config.RECIEVE_MESSAGE, 200, (msg['message'], msg['sender_id'])))
+                        self.sockets[msg['receiver_id']].send(wire_protocol.marshal_response(config.RECEIVE_MESSAGE, 200, (msg['message'], msg['sender_id'])))
                     else:
                         print("Recipient not logged in")
 

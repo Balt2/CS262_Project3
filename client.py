@@ -111,7 +111,7 @@ class Client:
                 return messageListResponse
             elif response_code == 404:
                 return 'Error retrieving messages: {} '.format(message)
-        elif user_action == config.RECIEVE_MESSAGE:
+        elif user_action == config.RECEIVE_MESSAGE:
             if response_code == 200:
                 messageTuple = eval(message)
                 return 'Message from {}: {} '.format(messageTuple[1], messageTuple[0])
