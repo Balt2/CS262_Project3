@@ -4,24 +4,22 @@ import string
 import config
 import wire_protocol
 import threading
+import _thread
 
 class Client:
     def __init__(self):
         self.logged_in_user = None
         self.clientsocket = self.create_client_socket()
         
-        #_thread.start_new_thread(self.threaded_listen_to_server, ())
-        self.client_main()
-        self.receiving_thread = None
-        #self.listen_to_server()
+        
+        self.open_thread()
+        self.user_thread = threading.Thread(target=self.client_main)
+        self.user_thread.start()
+
 
     def open_thread(self):
-        self.receiving_thread = threading.Thread(target=self.listen_to_server_threaded)
-        self.receiving_thread.daemon = True
+        self.receiving_thread = threading.Thread(target=self.threaded_listen_to_server)
         self.receiving_thread.start()
-
-    def close_thread(self):
-        self.receiving_thread.join()
 
     def create_client_socket(self):
         clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,34 +36,39 @@ class Client:
             menu_str += " 4-7: (must log in to see) \n"
         menu_str += " 8. Exit"
         print(menu_str)
-
         # capture user input, handling errors
         while True:
             try:
-                data=int(input("Enter a Number: "))
-                print ("You entered: ", data)
+                data=(input("Enter a Number: ")) 
+                if data.isdigit():
+                    data = int(data)
+                    print ("You entered: ", data)
 
-                # map user input to request types
-                if data == 1:
-                    return config.ACCOUNT_CREATION
-                if data == 2:
-                    return config.LOG_IN
-                if data == 3:
-                    return config.LIST_ACCOUNTS
-                if data == 4:
-                    return config.SEND_MESSAGE
-                if data == 5:
-                    return config.RECEIVE_MESSAGE
-                if data == 6:
-                    return config.ACCOUNT_DELETION
-                if data == 7:
-                    return config.LOG_OUT
-                if data == 8:
-                    return config.END_SESSION
+                    # map user input to request types
+                    if data == 1:
+                        return config.ACCOUNT_CREATION
+                    if data == 2:
+                        return config.LOG_IN
+                    if data == 3:
+                        return config.LIST_ACCOUNTS
+                    if data == 4:
+                        return config.SEND_MESSAGE
+                    if data == 5:
+                        return config.REQUEST_MESSAGES
+                    if data == 6:
+                        return config.ACCOUNT_DELETION
+                    if data == 7:
+                        return config.LOG_OUT
+                    if data == 8:
+                        return config.END_SESSION
                 else:
-                    print("Invalid input")
+                    #print("Invalid input")
+                    return config.ERROR
             except ValueError:
-                print ("Invalid input")
+                #print ("Invalid input")
+                return config.ERROR
+                
+                
 
     def create_account(self):
         print("create account")
@@ -86,7 +89,7 @@ class Client:
     def request_messages(self, sender_id: string="-1"):
         print("request messages")
         user_msg = str(input("Messages with username: "))
-        return wire_protocol.marshal_request(config.RECEIVE_MESSAGE, sender_id, user_msg)
+        return wire_protocol.marshal_request(config.REQUEST_MESSAGES, sender_id, user_msg)
 
     def list_accounts(self):
         print("list accounts")
@@ -106,99 +109,81 @@ class Client:
         return wire_protocol.marshal_request(config.END_SESSION)
 
     def parse_response(self, user_action, response_code, message):
-        print("parse_response: ", user_action, response_code, message)
         if user_action == config.ACCOUNT_CREATION:
-            print(message)
+            if response_code == 200:
+                return 'Account: {} created success!'.format(message)
+            elif response_code == 404:
+                return 'Error creating account: {}'.format(message)
         elif user_action == config.LOG_IN:
-            print(message)
-            print("HELLO")
+
             if response_code == 200:
                 self.logged_in_user = message
-                
-                print("Successfully logged in as: ", self.logged_in_user)
-                self.receiving_thread = threading.Thread(target=self.threaded_listen_to_server)
-                self.receiving_thread.daemon = True
-                self.receiving_thread.start()
+                return 'Successfully logged in as: {}'.format(message)
+            
             elif response_code == 404:
-                print("Error logging in: ", message)
+                return 'Error logging in: {}'.format(message)
+            
         elif user_action == config.LIST_ACCOUNTS:
-            print(message)
+            if response_code == 200:
+                return 'Accounts: {}'.format(message)
+            elif response_code == 404:
+                return 'Error listing accounts: {}'.format(message)
+
         elif user_action == config.SEND_MESSAGE:
-            print(message)
-        elif user_action == config.RECEIVE_MESSAGE:
+            if response_code == 200:
+                return 'Message sent successfully'
+            elif response_code == 404:
+                return 'Error sending message: {}'.format(message)
+            
+        elif user_action == config.REQUEST_MESSAGES:
             if response_code == 200:
                 messageList = eval(message)
-                print(messageList)
-                for msg in messageList:
-                    intTimestamp = int((msg[5]).split(".", 1)[0])
-                    timestamp = datetime.datetime.fromtimestamp(intTimestamp).strftime('%Y-%m-%d %H:%M:%S')
-                    print( "( " + timestamp + " ) " + msg[1] + " to " + msg[2] + " : " + msg[3])
-            elif response_code == 404:
-                print("Error retrieving messages: ", message)
                 
+                if(len(messageList) == 0):
+                    return 'No messages found'
+                
+                messageListResponse = "Messages with " + messageList[0][2] + ":\n"
+
+                for msg in messageList:
+
+                    intTimestamp = int((msg[5]).split(".", 1)[0])
+
+                    timestamp = datetime.datetime.fromtimestamp(intTimestamp).strftime('%Y-%m-%d %H:%M:%S')
+                    messageListResponse += ( "( " + timestamp + " ) " + msg[1] + " to " + msg[2] + " : " + msg[3] + '\n')
+
+                return messageListResponse
+            elif response_code == 404:
+                return 'Error retrieving messages: {} '.format(message)
+        elif user_action == config.RECIEVE_MESSAGE:
+            if response_code == 200:
+                messageTuple = eval(message)
+                return 'Message from {}: {} '.format(messageTuple[1], messageTuple[0])
+            elif response_code == 404:
+                return 'Error recieving message: {} '.format(message)
         elif user_action == config.ACCOUNT_DELETION:
             if response_code == 200:
-                print("Successfully deleted account: ", message)
                 self.logged_in_user = None
+                return 'Successfully deleted account: {} '.format(message)
+            
             elif response_code == 404:
-                print("Error deleting account: ", message)
+                return 'Error deleting account: {} '.format(message)
         elif user_action == config.LOG_OUT:
             if response_code == 200:
-                print("Successfully logged out: ", message)
+                
                 self.logged_in_user = None
+                return 'Successfully logged out: {} '.format(message)
             elif response_code == 404:
-                print("Error logging out: ", message)
-        
-       
-            bdata, addr = self.clientsocket.recvfrom(1024)
-            #print("Got data while Listening: ", bdata)
-            # parse the response
-            response = wire_protocol.unmarshal_response(bdata)
-            response_code = response['response_code']
-            message = response['message']
-            user_action = response['response_type']
-
-            # if user_action == config.END_SESSION:
-            #     print("Ending session...")
-            #     break
-
-            # parse the response and print the result
-            self.parse_response(user_action, response_code, message)
-            
+                return 'Error logging out: '.format(message)    
             
     def threaded_listen_to_server(self):
         while True: 
-            print("IN THREAD")
-            message = self.listen_to_server()
-            
+            message, originalMessage = self.listen_to_server_one_time()
+            print('\n')
+            #print(originalMessage)
+            print(message)
+            print("Press enter to continue...")
+  
 
-            # bdata, addr = self.clientsocket.recvfrom(1024)
-            # #print("Got data while Listening: ", bdata)
-            # # parse the response
-            # response = wire_protocol.unmarshal_response(bdata)
-            # response_code = response['response_code']
-            # message = response['message']
-            # # user_action = response['response_type']
-            # print("IN LISTENING THREAD: ", message)
-            # # if user_action == config.END_SESSION:
-            # #     print("Ending session...")
-            # #     break
-
-            # parse the response and print the result
-            #self.parse_response(user_action, response_code, message)
-
-    def listen_to_server(self):
-        print("LISTEN TO SERVER")
-        while True:
-            bdata, addr = self.clientsocket.recvfrom(1024)
-            #print("Got data while Listening: ", bdata)
-            # parse the response
-            response = wire_protocol.unmarshal_response(bdata)
-            response_code = response['response_code']
-            message = response['message']
-            user_action = response['response_type']
-            print("USER ACTION: ", user_action)
-            self.parse_response(user_action, response_code, message)
             
     def listen_to_server_one_time(self):
         bdata, addr = self.clientsocket.recvfrom(1024)
@@ -208,8 +193,8 @@ class Client:
         response_code = response['response_code']
         message = response['message']
         user_action = response['response_type']
-        print("USER ACTION: ", user_action)
-        self.parse_response(user_action, response_code, message)
+        printResponse = self.parse_response(user_action, response_code, message)
+        return printResponse, response
 
     def client_main(self):
         print("Starting client...")
@@ -227,15 +212,18 @@ class Client:
                         bmsg = self.list_accounts()
                     elif user_action == config.SEND_MESSAGE:
                         bmsg = self.send_message(sender_id=self.logged_in_user)
-                    elif user_action == config.RECEIVE_MESSAGE:
+                    elif user_action == config.REQUEST_MESSAGES:
                         bmsg = self.request_messages(sender_id=self.logged_in_user)
                     elif user_action == config.ACCOUNT_DELETION:
                         bmsg = self.delete_account(sender_id=self.logged_in_user)
                     elif user_action == config.LOG_OUT:
                         bmsg = self.log_out(sender_id=self.logged_in_user)
                     else:
-                        print("Please log out to perform this action.")
-                        continue
+                        if (user_action == 10):
+                            continue
+                        else:
+                            print("Please log out to perform this action.")
+                            continue
                 else:
                     if user_action == config.ACCOUNT_CREATION:
                         bmsg = self.create_account()
@@ -253,33 +241,11 @@ class Client:
                 # send the payload along the wire
                 sent = self.clientsocket.send(bmsg)
                 print('Message sent, %d/%d bytes transmitted' % (sent, len(bmsg)))
-                # bdata, addr = self.clientsocket.recvfrom(1024)
-                #if (user_action == config.LOG_IN):
-                self.listen_to_server_one_time()
-
-                #self.listen_to_server(user_action)
-
-                # bdata, addr = self.clientsocket.recvfrom(1024)
-
-                # # parse the response
-                # response = wire_protocol.unmarshal_response(bdata)
-                # response_code = response['response_code']
-                # message = response['message']
-                # user_action = response['response_type']
-                # self.parse_response(user_action, response_code, message)
+                
                 
                 if user_action == config.END_SESSION:
                     print("Ending session...")
-                    break
-                
-                #self.threaded_listener_on = True
-                #_thread.start_new_thread(self.threaded_listen_to_server, ())
-
-                #continue
-
-                # parse the response and print the result
-                #self.parse_response(user_action, response_code, message)
-                
+                    break           
                             
             # after loop, close socket
             self.clientsocket.shutdown(socket.SHUT_RDWR)
