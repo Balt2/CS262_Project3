@@ -86,7 +86,6 @@ class Server:
             print("Got MSSG: ", msg, " from Address: ", client_addr)
 
             response_code, response_payload = self.handleRequest(msg, clientsocket)
-            response_code, response_payload = self.handleRequest(msg, clientsocket)
             
             msg_request_type = msg['request_type']
             response = wire_protocol.marshal_response(msg_request_type, response_code, response_payload)
