@@ -15,7 +15,7 @@ class Server:
     def clientAddrToString(self, client_addr):
         return str(client_addr[0]) + ":" + str(client_addr[1])
     
-    def handleRequest(self, msg, client_addr, clientsocket):
+    def handleRequest(self, msg, clientsocket):
         try:
             msg_request_type = msg['request_type']
             if msg_request_type == config.ACCOUNT_CREATION:
@@ -92,7 +92,7 @@ class Server:
             msg = wire_protocol.unmarshal_request(bdata)
             print("Got MSSG: ", msg, " from Address: ", client_addr)
 
-            response_code, response_payload = self.handleRequest(msg, client_addr, clientsocket)
+            response_code, response_payload = self.handleRequest(msg, clientsocket)
             
             response = wire_protocol.marshal_response(msg['request_type'], response_code, response_payload)
             sent = clientsocket.send(response)
