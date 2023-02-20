@@ -3,17 +3,26 @@ import socket
 import string
 import config
 import wire_protocol
-import _thread
+import threading
 
 class Client:
     def __init__(self):
         self.logged_in_user = None
         self.clientsocket = self.create_client_socket()
+        
+        #_thread.start_new_thread(self.threaded_listen_to_server, ())
         self.client_main()
-        #_thread.start_new_thread(self.listen_to_server, ())
+        self.receiving_thread = None
         #self.listen_to_server()
-        
-        
+
+    def open_thread(self):
+        self.receiving_thread = threading.Thread(target=self.listen_to_server_threaded)
+        self.receiving_thread.daemon = True
+        self.receiving_thread.start()
+
+    def close_thread(self):
+        self.receiving_thread.join()
+
     def create_client_socket(self):
         clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         clientsocket.connect((config.SERVER_HOST, config.PORT))
@@ -97,13 +106,19 @@ class Client:
         return wire_protocol.marshal_request(config.END_SESSION)
 
     def parse_response(self, user_action, response_code, message):
-        
+        print("parse_response: ", user_action, response_code, message)
         if user_action == config.ACCOUNT_CREATION:
             print(message)
         elif user_action == config.LOG_IN:
+            print(message)
+            print("HELLO")
             if response_code == 200:
                 self.logged_in_user = message
+                
                 print("Successfully logged in as: ", self.logged_in_user)
+                self.receiving_thread = threading.Thread(target=self.threaded_listen_to_server)
+                self.receiving_thread.daemon = True
+                self.receiving_thread.start()
             elif response_code == 404:
                 print("Error logging in: ", message)
         elif user_action == config.LIST_ACCOUNTS:
@@ -151,8 +166,41 @@ class Client:
             self.parse_response(user_action, response_code, message)
             
             
+    def threaded_listen_to_server(self):
+        while True: 
+            print("IN THREAD")
+            message = self.listen_to_server()
+            
 
-    def listen_to_server(self, user_action = None):
+            # bdata, addr = self.clientsocket.recvfrom(1024)
+            # #print("Got data while Listening: ", bdata)
+            # # parse the response
+            # response = wire_protocol.unmarshal_response(bdata)
+            # response_code = response['response_code']
+            # message = response['message']
+            # # user_action = response['response_type']
+            # print("IN LISTENING THREAD: ", message)
+            # # if user_action == config.END_SESSION:
+            # #     print("Ending session...")
+            # #     break
+
+            # parse the response and print the result
+            #self.parse_response(user_action, response_code, message)
+
+    def listen_to_server(self):
+        print("LISTEN TO SERVER")
+        while True:
+            bdata, addr = self.clientsocket.recvfrom(1024)
+            #print("Got data while Listening: ", bdata)
+            # parse the response
+            response = wire_protocol.unmarshal_response(bdata)
+            response_code = response['response_code']
+            message = response['message']
+            user_action = response['response_type']
+            print("USER ACTION: ", user_action)
+            self.parse_response(user_action, response_code, message)
+            
+    def listen_to_server_one_time(self):
         bdata, addr = self.clientsocket.recvfrom(1024)
         #print("Got data while Listening: ", bdata)
         # parse the response
@@ -160,8 +208,8 @@ class Client:
         response_code = response['response_code']
         message = response['message']
         user_action = response['response_type']
+        print("USER ACTION: ", user_action)
         self.parse_response(user_action, response_code, message)
-            
 
     def client_main(self):
         print("Starting client...")
@@ -206,18 +254,19 @@ class Client:
                 sent = self.clientsocket.send(bmsg)
                 print('Message sent, %d/%d bytes transmitted' % (sent, len(bmsg)))
                 # bdata, addr = self.clientsocket.recvfrom(1024)
-                
+                #if (user_action == config.LOG_IN):
+                self.listen_to_server_one_time()
 
                 #self.listen_to_server(user_action)
 
-                bdata, addr = self.clientsocket.recvfrom(1024)
+                # bdata, addr = self.clientsocket.recvfrom(1024)
 
-                # parse the response
-                response = wire_protocol.unmarshal_response(bdata)
-                response_code = response['response_code']
-                message = response['message']
-                user_action = response['response_type']
-                self.parse_response(user_action, response_code, message)
+                # # parse the response
+                # response = wire_protocol.unmarshal_response(bdata)
+                # response_code = response['response_code']
+                # message = response['message']
+                # user_action = response['response_type']
+                # self.parse_response(user_action, response_code, message)
                 
                 if user_action == config.END_SESSION:
                     print("Ending session...")
@@ -226,7 +275,7 @@ class Client:
                 #self.threaded_listener_on = True
                 #_thread.start_new_thread(self.threaded_listen_to_server, ())
 
-                continue
+                #continue
 
                 # parse the response and print the result
                 #self.parse_response(user_action, response_code, message)

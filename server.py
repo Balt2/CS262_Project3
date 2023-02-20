@@ -113,43 +113,10 @@ class Server:
                 print("Client connected: ", client_addr)
                 #self.sockets[self.clientAddrToString(client_addr)] = ['-1', clientsocket]
                 print("Client IP: ", client_addr[0], " Client Port: ", client_addr[1])
+                #Start new thread for each client
                 _thread.start_new_thread(self.listen_to_client, (clientsocket, client_addr))
-                # self.sockets.append(newClient)
-
-# def server():
-#     #Helpful https://realpython.com/python-sockets/
-#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        
-#         s.bind((config.SERVER_HOST, config.PORT))
-#         print("Server up on IP: ", config.SERVER_HOST, " and port: ", config.PORT )
-
-#         #Create DB Object
-#         db = DB('test.db')
-#         print("Server loaded DB: ")
-
-#         s.listen()
-#         print("Server listening...")
-#         while True:
-#             clientsocket, client_addr = s.accept()
-#             newClient = ClientSocket(clientsocket, client_addr, db)
-#             _thread.start_new_thread(newClient.listen, ())
-            
-#             # with clientsocket:
-#             #     print('Connected by', client_addr)
-#             #     while True:
-#             #         bdata, addr = clientsocket.recvfrom(1024)
-#             #         print("Data from Client Socket: ", clientsocket)
-#             #         print("BDATA: ", bdata)
-#             #         msg = wire_protocol.unmarshal_request(bdata)
-#             #         print("Got MSSG: ", msg, " from Address: ", client_addr)
-
-#             #         response_code, response_payload = handleRequest(msg, db)
-                    
-#             #         response = wire_protocol.marshal_response(response_code, response_payload)
-#             #         sent = clientsocket.send(response)
-#             #         print('Server responded, %d/%d bytes transmitted' % (sent, len(response)))
 
 server = Server()
 server.start()
-#server()
+
 
