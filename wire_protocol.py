@@ -1,5 +1,4 @@
 import time
-import config
 
 def marshal_into_single_string(msg):
     # convert the msg object into a single string, with :: as the delimiter between fields

@@ -1,6 +1,6 @@
 # CS262_Project1
 
-This is a project to fulfill the requirements of the first design challenges of CS262: Distributed Computing.
+This is a project to fulfill the requirements of the first design challenges of CS262: Distributed Computing. This README covers to install, setup, run, and test our code. The DesignDecisions doc details our engineering decisions.
 
 ## Setup
 
@@ -10,7 +10,15 @@ This is a project to fulfill the requirements of the first design challenges of 
 
 2. From the root directory of the repository, run: `pip install grpcio grpcio-tools`
 
-## Running
+## Compiling for gRPC
+
+These steps only need to occur after developmental changes. If you just cloned the repo and pulled down the latest you should not need to complete this step. However, if you make any changes to `messages.proto`, you'll need to recompile by performing this step.
+
+1. Navigate to the `grpc` directory and run this command from within that directory: `python3 -m grpc_tools.protoc --proto_path=. --python_out=. --grpc_python_out=. messages.proto`
+
+This will update the `messages_pb2.py` and `messages_pb2_grpc.py` files for you (or generate them if they don't exist).
+
+## Running Part 1 (The Wire Protocol)
 
 1. On one computer, run client.py. From the root directory of the repository:
    `python client.py`
@@ -20,17 +28,19 @@ This is a project to fulfill the requirements of the first design challenges of 
 
 Note: this project assumes the computers are on the same Internet network.
 
+## Running Part 2 (gRPC)
+
+1. On one computer, run client_grpc.py. Navigate to the `grpc` directory of the repository and run:
+   `python client_grpc.py`
+
+2. On the other computer, run server_grpc.py. Navigate to the `grpc` directory of the repository and run:
+   `python server_grpc.py`
+
+Note: this project assumes the computers are on the same Internet network.
+
 ## Testing
 
 We use pytest to run the tests. To run pytest, you'll need both the 'pytest' and 'pytest-mock' libraries.
 
 1. Install the test libraries (one-time only). In the root director of the repository, run: `pip install pytest pytest-mock`
-2. Run the tests. From the command line, in the root directory of the repository, run: `pytest`
-
-## Wire Protocol
-
-- Request Type (enum)
-- Sender ID (if needed, -1 otherwise)
-- Receiver ID (if needed, -1 otherwise)
-- Timestamp
-- Message (if needed, '' otherwise)
+2. Run the tests. In the root directory of the repository, run: `pytest`
