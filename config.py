@@ -1,5 +1,6 @@
-SERVER_HOST = '100.80.62.232'
+SERVER_HOST = '10.228.16.155'
 PORT = 6000
+GRPC_PORT = 6010
 
 ## Wire Protocol Definitions
 

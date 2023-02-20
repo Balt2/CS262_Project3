@@ -1,0 +1,39 @@
+
+syntax = "proto3";
+
+// The greeting service definition.
+service MessageExchange {
+  rpc CreateAccount (AccountRequest) returns (AccountResponse) {}
+  rpc LogIn (AccountRequest) returns (AccountResponse) {}
+  rpc ListAccounts (ListAccountsRequest) returns (ListAccountsResponse) {}
+  rpc LogOut (AccountRequest) returns (AccountResponse) {}
+  rpc DeleteAccount (AccountRequest) returns (AccountResponse) {}
+}
+
+message Account {
+    string name = 1;
+    optional bool loggedIn = 2;
+}
+
+/*
+/ Create, LogIn, LogOut, and Delete Account
+*/ 
+
+message AccountRequest {
+    string name = 1;
+}
+
+message AccountResponse {
+    int32 response_code = 1;
+    string response_text = 2;
+}
+
+
+/*
+/ List Accounts
+*/ 
+message ListAccountsRequest {}
+
+message ListAccountsResponse {
+    repeated Account accounts = 1;
+}
