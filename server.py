@@ -30,13 +30,25 @@ class Server:
             
             elif msg_request_type == config.LIST_ACCOUNTS:
                 print("Listing accounts...")
-                search_pattern = msg['message']
-                print("search_pattern =", search_pattern)
+                search_pattern = msg['message'] or ""
                 response_code, accounts = self.db.listAccounts()
-                print("accounts! = ", accounts)
-                # filtered_accounts = (lambda: a: a[0], accounts)
-                # print("filtered_accounts! = ", filtered_accounts)
-                return response_code, accounts
+                filtered_accounts = []
+
+                # apply the wildcard search to results
+                for act in accounts:
+                    username = act[0]
+                    if search_pattern == "*":
+                        filtered_accounts.append(username)
+                    elif "*" in search_pattern:
+                        index = search_pattern.index('*')
+                        if username[0:index] == search_pattern[0:index]:
+                            filtered_accounts.append(username)
+                    else:
+                        if re.match(search_pattern, username):
+                            filtered_accounts.append(username)
+
+                return response_code, filtered_accounts
+
             elif msg_request_type == config.SEND_MESSAGE:
                 print("Sending message...")
                 response_code, message = self.db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'])
