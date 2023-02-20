@@ -4,13 +4,14 @@ GRPC_PORT = 6010
 
 ## Wire Protocol Definitions
 
-# Request Types
+# Request Types, used to identify the type of request in the eye of the client
 ACCOUNT_CREATION = 1
 LOG_IN = 2
 LIST_ACCOUNTS = 3
 SEND_MESSAGE = 4
-RECEIVE_MESSAGE = 5
+REQUEST_MESSAGES = 5
 ACCOUNT_DELETION = 6
 LOG_OUT = 7
 END_SESSION = 8
-REQUEST_RESPONSE = 9
+RECIEVE_MESSAGE = 9
+ERROR = 10

@@ -9,7 +9,7 @@ from db import DB
     
 class Server:
     def __init__(self):
-        self.db = DB('test3.db')
+        self.db = DB('test4.db')
         self.sockets = {}
 
     def handleRequest(self, msg, clientsocket):
@@ -44,14 +44,13 @@ class Server:
                     print("Message saved to DB! Sending message to recipient...")
                     if msg['receiver_id'] in self.sockets:
                         print("Found recipient socket")
-                        user_socket = self.sockets[msg['receiver_id']]
-                        user_socket.send(wire_protocol.marshal_response(200, (msg['sender_id'], msg['message'])))
+                        self.sockets[msg['receiver_id']].send(wire_protocol.marshal_response(config.RECIEVE_MESSAGE, 200, (msg['message'], msg['sender_id'])))
                     else:
                         print("Recipient not logged in")
 
                 return response_code, message
             
-            elif msg_request_type == config.RECEIVE_MESSAGE:
+            elif msg_request_type == config.REQUEST_MESSAGES:
                 print("Receiving message...")
                 return self.db.getMessagesForChat(msg['sender_id'], msg['receiver_id'])
             elif msg_request_type == config.ACCOUNT_DELETION:
@@ -105,8 +104,10 @@ class Server:
                 clientsocket, client_addr = s.accept()
                 print("Client connected: ", client_addr)
                 print("Client IP: ", client_addr[0], " Client Port: ", client_addr[1])
+                #Start new thread for each client
                 _thread.start_new_thread(self.listen_to_client, (clientsocket, client_addr))
 
 server = Server()
 server.start()
+
 

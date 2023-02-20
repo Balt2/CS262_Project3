@@ -135,7 +135,7 @@ class DB:
         SELECT * FROM messages 
         WHERE (sender_username = ? AND reciever_username = ?) 
         OR (sender_username = ? AND reciever_username = ?)
-        ORDER BY created_at ASC
+        ORDER BY created_at DESC
         ''', (username, receiver_username, receiver_username, username))
         messages = self.cur.fetchall()
         return 200, messages
