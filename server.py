@@ -9,7 +9,7 @@ from db import DB
     
 class Server:
     def __init__(self):
-        self.db = DB('test4.db')
+        self.db = DB('development.db')
         self.sockets = {}
 
     def handleRequest(self, msg, clientsocket):

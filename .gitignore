@@ -3,3 +3,4 @@ __pycache
 .DS_Store
 
 grpc/__pycache
+tests/__pycache
