@@ -12,7 +12,7 @@ class Server:
         self.db = DB('test3.db')
         self.sockets = {}
 
-    def handleRequest(self, msg, client_addr, clientsocket):
+    def handleRequest(self, msg, clientsocket):
         try:
             msg_request_type = msg['request_type']
             if msg_request_type == config.ACCOUNT_CREATION:
@@ -41,11 +41,11 @@ class Server:
                 print("Sending message...")
                 response_code, message = self.db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'])
                 if response_code == 200:
-                    print("Message saved to DB!")
-                    print("Sending message to recipient...")
+                    print("Message saved to DB! Sending message to recipient...")
                     if msg['receiver_id'] in self.sockets:
                         print("Found recipient socket")
-                        self.sockets[msg['receiver_id']].send(wire_protocol.marshal_response(200, (msg['sender_id'], msg['message'])))
+                        user_socket = self.sockets[msg['receiver_id']]
+                        user_socket.send(wire_protocol.marshal_response(200, (msg['sender_id'], msg['message'])))
                     else:
                         print("Recipient not logged in")
 
@@ -86,9 +86,10 @@ class Server:
             msg = wire_protocol.unmarshal_request(bdata)
             print("Got MSSG: ", msg, " from Address: ", client_addr)
 
-            response_code, response_payload = self.handleRequest(msg, client_addr, clientsocket)
+            response_code, response_payload = self.handleRequest(msg, clientsocket)
             
-            response = wire_protocol.marshal_response(msg['request_type'], response_code, response_payload)
+            msg_request_type = msg['request_type']
+            response = wire_protocol.marshal_response(msg_request_type, response_code, response_payload)
             sent = clientsocket.send(response)
             print('Server responded, %d/%d bytes transmitted' % (sent, len(response)))
             
@@ -105,7 +106,6 @@ class Server:
                 print("Client connected: ", client_addr)
                 print("Client IP: ", client_addr[0], " Client Port: ", client_addr[1])
                 _thread.start_new_thread(self.listen_to_client, (clientsocket, client_addr))
-                # self.sockets.append(newClient)
 
 server = Server()
 server.start()

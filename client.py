@@ -133,7 +133,8 @@ class Client:
                 self.logged_in_user = None
             elif response_code == 404:
                 print("Error logging out: ", message)
-
+        
+   
     def listen_to_server(self, user_action = None):
         bdata, addr = self.clientsocket.recvfrom(1024)
         # parse the response and print the result
@@ -142,7 +143,6 @@ class Client:
         message = response['message']
         user_action = response['response_type']
         self.parse_response(user_action, response_code, message)
-            
 
     def client_main(self):
         print("Starting client...")
@@ -199,7 +199,7 @@ class Client:
                 message = response['message']
                 user_action = response['response_type']
                 self.parse_response(user_action, response_code, message)
-                
+
                 if user_action == config.END_SESSION:
                     print("Ending session...")
                     break
