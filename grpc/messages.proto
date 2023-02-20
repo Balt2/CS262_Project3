@@ -8,6 +8,7 @@ service MessageExchange {
   rpc ListAccounts (ListAccountsRequest) returns (ListAccountsResponse) {}
   rpc LogOut (AccountRequest) returns (AccountResponse) {}
   rpc DeleteAccount (AccountRequest) returns (AccountResponse) {}
+  rpc SendMessage (SendMessageRequest) returns (SendMessageResponse) {}
 }
 
 message Account {
@@ -36,4 +37,15 @@ message ListAccountsRequest {}
 
 message ListAccountsResponse {
     repeated Account accounts = 1;
+}
+
+message SendMessageRequest {
+    string sender_id = 1;
+    string receiver_id = 2;
+    string message = 3;
+}
+
+message SendMessageResponse {
+    int32 response_code = 1;
+    int32 delivered = 2;
 }

@@ -44,7 +44,10 @@ class GrpcClient():
 
     def send_message(self, sender_id: string="-1"):
         print("send_message")
-        # TODO
+        user_msg = str(input("Message to Send: "))
+        receiver_id = str(input("Receiver username: "))
+        send_message_response = self.stub.SendMessage(pb2.SendMessageRequest(sender_id=self.logged_in_user, receiver_id=receiver_id, message=user_msg))
+        print(send_message_response)
 
     def request_messages(self, sender_id: string="-1"):
         print("request messages")
@@ -128,7 +131,7 @@ class GrpcClient():
                         self.list_accounts()
                     elif user_action == config.SEND_MESSAGE:
                         self.send_message()
-                    elif user_action == config.RECEIVE_MESSAGE:
+                    elif user_action == config.REQUEST_MESSAGES:
                         self.request_messages()
                     elif user_action == config.ACCOUNT_DELETION:
                         self.delete_account()
