@@ -29,7 +29,6 @@ def unmarshal_request(bdata):
 
     if len(split_str) != 6:
         print("ERROR STR: ", str)
-        
         raise Exception('Unable to unmarshal the request')
 
     msg = {}

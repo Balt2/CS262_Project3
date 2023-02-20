@@ -187,8 +187,7 @@ class Client:
             
     def listen_to_server_one_time(self):
         bdata, addr = self.clientsocket.recvfrom(1024)
-        #print("Got data while Listening: ", bdata)
-        # parse the response
+        # parse the response and print the result
         response = wire_protocol.unmarshal_response(bdata)
         response_code = response['response_code']
         message = response['message']

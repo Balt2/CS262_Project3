@@ -8,13 +8,17 @@ This is a project to fulfill the requirements of the first design challenges of 
 
    You should use the IP address from the computer itself and not a website like whatismyip, because the IP exposed to the general public is different than the IPv4 from the computer's perspective. On a Mac, for example, the IP can be found by navigating to Settings > Network > Advanced > TCP/IP tab.
 
-2. On one computer, run client.py. From the root directory of the repository:
+2. From the root directory of the repository, run: `pip install grpcio grpcio-tools`
+
+## Running
+
+1. On one computer, run client.py. From the root directory of the repository:
    `python client.py`
 
-3. On the other computer, run server.py. From the root directory of the repository:
+2. On the other computer, run server.py. From the root directory of the repository:
    `python server.py`
 
-Note: this project assumes the computers are on the same Internet network
+Note: this project assumes the computers are on the same Internet network.
 
 ## Testing
 

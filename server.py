@@ -12,9 +12,6 @@ class Server:
         self.db = DB('test4.db')
         self.sockets = {}
 
-    def clientAddrToString(self, client_addr):
-        return str(client_addr[0]) + ":" + str(client_addr[1])
-    
     def handleRequest(self, msg, clientsocket):
         try:
             msg_request_type = msg['request_type']
@@ -44,9 +41,7 @@ class Server:
                 print("Sending message...")
                 response_code, message = self.db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'])
                 if response_code == 200:
-                    print("Message saved to DB!")
-                    
-                    print("Sending message to recipient...")
+                    print("Message saved to DB! Sending message to recipient...")
                     if msg['receiver_id'] in self.sockets:
                         print("Found recipient socket")
                         self.sockets[msg['receiver_id']].send(wire_protocol.marshal_response(config.RECIEVE_MESSAGE, 200, (msg['message'], msg['sender_id'])))
@@ -74,7 +69,6 @@ class Server:
             
             elif msg_request_type == config.END_SESSION:
                 print("Ending session...")
-                #TODO: Remove socket from list of sockets
                 return 200, ""
         except Exception as err:
             print(f"Unexpected {err=}, {type(err)=}")
@@ -88,13 +82,14 @@ class Server:
         while True:
             bdata, addr = clientsocket.recvfrom(1024)
             print("Data from Client Socket: ", clientsocket)
-            print("BDATA: ", bdata)
             msg = wire_protocol.unmarshal_request(bdata)
             print("Got MSSG: ", msg, " from Address: ", client_addr)
 
             response_code, response_payload = self.handleRequest(msg, clientsocket)
+            response_code, response_payload = self.handleRequest(msg, clientsocket)
             
-            response = wire_protocol.marshal_response(msg['request_type'], response_code, response_payload)
+            msg_request_type = msg['request_type']
+            response = wire_protocol.marshal_response(msg_request_type, response_code, response_payload)
             sent = clientsocket.send(response)
             print('Server responded, %d/%d bytes transmitted' % (sent, len(response)))
             
@@ -109,7 +104,6 @@ class Server:
             while True:
                 clientsocket, client_addr = s.accept()
                 print("Client connected: ", client_addr)
-                #self.sockets[self.clientAddrToString(client_addr)] = ['-1', clientsocket]
                 print("Client IP: ", client_addr[0], " Client Port: ", client_addr[1])
                 #Start new thread for each client
                 _thread.start_new_thread(self.listen_to_client, (clientsocket, client_addr))
