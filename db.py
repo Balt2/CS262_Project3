@@ -71,6 +71,12 @@ class DB:
         if not self.doesUserExist(username):
             return 404, "User {} does not exist.".format(username)
         
+        # Check if the user is already logged in
+        self.cur.execute("SELECT logged_in FROM accounts WHERE username = ?", (username,))
+        user = self.cur.fetchone()
+        if user[0] == 1:
+            return 404, "User {} is already logged in.".format(username)
+        
         self.cur.execute("UPDATE accounts SET logged_in = 1 WHERE username = ?", (username,))
         self.con.commit()
         return 200, username
@@ -92,6 +98,9 @@ class DB:
         if not self.doesUserExist(username):
             return 404, "User {} does not exist.".format(username)
         
+        if not self.isUserLoggedIn(username):
+            return 404, "User {} is not logged in.".format(username)
+        
         self.cur.execute("UPDATE accounts SET logged_in = 0 WHERE username = ?", (username,))
         self.con.commit()
         return 200, username
@@ -102,14 +111,20 @@ class DB:
         return 200, accounts
 
     def insertMessage(self, sender_username: string, receiver_username: string, content: string):
-        #Check if sender and reciever exist
+        #Check if sender exist
         if not self.doesUserExist(sender_username):
             return 404, "Sender {} does not exist.".format(sender_username)
         
-        delivered = 0
+        #Check if reciever exists
         if not self.doesUserExist(receiver_username):
             return 404, "Reciever {} does not exist.".format(receiver_username)
-        elif self.isUserLoggedIn(receiver_username):
+        
+        #Check if reciever is the same as the sender
+        if sender_username == receiver_username:
+            return 404, "Sender {} cannot send a message to themselves.".format(sender_username)
+        
+        delivered = 0
+        if self.isUserLoggedIn(receiver_username):
             delivered = 1
 
         #Create ID of message

@@ -1,3 +1,5 @@
+import signal
+import sys
 import client_utils
 import datetime
 import socket
@@ -16,6 +18,8 @@ class Client:
         self.open_thread()
         self.user_thread = threading.Thread(target=self.client_main)
         self.user_thread.start()
+
+        
 
 
     def open_thread(self):
@@ -63,12 +67,14 @@ class Client:
 
     def end_session(self):
         print("end session")
-        return wire_protocol.marshal_request(config.END_SESSION)
+        return wire_protocol.marshal_request(config.END_SESSION, self.logged_in_user)
 
     def parse_response(self, user_action, response_code, message):
         if user_action == config.ACCOUNT_CREATION:
             if response_code == 200:
-                return 'Account: {} created success!'.format(message)
+                self.logged_in_user = message
+                return 'Account: {} created and loged in succsessfully!'.format(message)
+
             elif response_code == 404:
                 return 'Error creating account: {}'.format(message)
         elif user_action == config.LOG_IN:
@@ -210,5 +216,16 @@ class Client:
             print(f"Unexpected {err=}, {type(err)=}")
             self.clientsocket.shutdown(socket.SHUT_RDWR)
             self.clientsocket.close()
+    
+    
+
+# def user_exited_program(signum, client: Client):
+#         print("User exited program")
+#         client.end_session()
+#         sys.exit(0)
+
+
 
 client = Client()
+
+#signal.signal(signal.SIGINT, user_exited_program, client)

@@ -26,11 +26,24 @@ def unmarshal_request(bdata):
     str = bdata.decode('ascii')
     split_str = str.split("::") 
 
+    msg = {}
     if len(split_str) != 6:
         print("ERROR STR: ", str)
-        raise Exception('Unable to unmarshal the request')
+        print("ERROR DATA: ", bdata)
+        #Case represents the client sending us 0 bytes.
+        #We assume this means the client has disconnected.
+        print(len(str))
+        if(len(str) == 0):
+            msg['request_type'] = 8
+            msg['sender_id'] = '0'
+            msg['receiver_id'] = '0'
+            msg['timestamp'] = '0'
+            msg['message'] = '0'
+            return msg
+        else:
+            raise Exception('Unable to unmarshal the request')
 
-    msg = {}
+    
     for i, item in enumerate(split_str):
         if i == 0:
             msg['request_type'] = int(item)

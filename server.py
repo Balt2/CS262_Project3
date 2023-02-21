@@ -17,7 +17,14 @@ class Server:
             msg_request_type = msg['request_type']
             if msg_request_type == config.ACCOUNT_CREATION:
                 print("Creating account...")
-                return self.db.insertUser(msg['sender_id'])
+                response_code, username = self.db.insertUser(msg['sender_id'])
+                
+                if response_code == 200:
+                    self.sockets[username] = clientsocket
+                    print("Created user in client sockets: ", username)
+                    print(clientsocket)
+
+                return response_code, username
             elif msg_request_type == config.LOG_IN:
                 print("Logging in...")
                 response_code, username = self.db.logIn(msg['sender_id'])
@@ -81,7 +88,23 @@ class Server:
             
             elif msg_request_type == config.END_SESSION:
                 print("Ending session...")
-                return 200, ""
+                try:
+
+                    socket_list = list(self.sockets.values())
+                    socket_index = socket_list.index(clientsocket)
+                   
+                    if (socket_list[socket_index].getpeername() == clientsocket.getpeername()):
+                        username = list(self.sockets.keys())[socket_index]
+                        print("Socket found in list of sockets. Removing and logging out user...".format(username))
+                        response_code, username = self.db.logOut(username)
+                        self.sockets.pop(username)
+
+                    
+                    return 502, username
+                except:
+                    return 502, "User was not logged in. Socket was disconnected."
+
+        
         except Exception as err:
             print(f"Unexpected {err=}, {type(err)=}")
             return 404, ""
@@ -98,7 +121,11 @@ class Server:
             print("Got MSSG: ", msg, " from Address: ", client_addr)
 
             response_code, response_payload = self.handleRequest(msg, clientsocket)
-            
+            if response_code == 502:
+                print("Client disconnected: {} ".format(response_payload), client_addr)
+                clientsocket.close()
+                break
+
             msg_request_type = msg['request_type']
             response = wire_protocol.marshal_response(msg_request_type, response_code, response_payload)
             sent = clientsocket.send(response)
@@ -118,6 +145,13 @@ class Server:
                 print("Client IP: ", client_addr[0], " Client Port: ", client_addr[1])
                 #Start new thread for each client
                 _thread.start_new_thread(self.listen_to_client, (clientsocket, client_addr))
+    
+    #TODO: Signout all users when the server is shut down
+    def stop(self):
+        print("Server shutting down...")
+        for username in self.sockets.keys():
+            self.db.logOut(username)
+
 
 server = Server()
 server.start()
