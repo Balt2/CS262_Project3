@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0emessages.proto\";\n\x07\x41\x63\x63ount\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x15\n\x08loggedIn\x18\x02 \x01(\x08H\x00\x88\x01\x01\x42\x0b\n\t_loggedIn\"B\n\x07Message\x12\x11\n\tsender_id\x18\x01 \x01(\t\x12\x13\n\x0breceiver_id\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"\x1e\n\x0e\x41\x63\x63ountRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"?\n\x0f\x41\x63\x63ountResponse\x12\x15\n\rresponse_code\x18\x01 \x01(\x05\x12\x15\n\rresponse_text\x18\x02 \x01(\t\"\x15\n\x13ListAccountsRequest\"2\n\x14ListAccountsResponse\x12\x1a\n\x08\x61\x63\x63ounts\x18\x01 \x03(\x0b\x32\x08.Account\"M\n\x12SendMessageRequest\x12\x11\n\tsender_id\x18\x01 \x01(\t\x12\x13\n\x0breceiver_id\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"?\n\x13SendMessageResponse\x12\x15\n\rresponse_code\x18\x01 \x01(\x05\x12\x11\n\tdelivered\x18\x02 \x01(\x05\"@\n\x16RequestMessagesRequest\x12\x11\n\tsender_id\x18\x01 \x01(\t\x12\x13\n\x0breceiver_id\x18\x02 \x01(\t\"j\n\x17RequestMessagesResponse\x12\x15\n\rresponse_code\x18\x01 \x01(\x05\x12\x1a\n\x08messages\x18\x02 \x03(\x0b\x32\x08.Message\x12\x12\n\x05\x65rror\x18\x03 \x01(\tH\x00\x88\x01\x01\x42\x08\n\x06_error2\x9d\x03\n\x0fMessageExchange\x12\x34\n\rCreateAccount\x12\x0f.AccountRequest\x1a\x10.AccountResponse\"\x00\x12,\n\x05LogIn\x12\x0f.AccountRequest\x1a\x10.AccountResponse\"\x00\x12=\n\x0cListAccounts\x12\x14.ListAccountsRequest\x1a\x15.ListAccountsResponse\"\x00\x12-\n\x06LogOut\x12\x0f.AccountRequest\x1a\x10.AccountResponse\"\x00\x12\x34\n\rDeleteAccount\x12\x0f.AccountRequest\x1a\x10.AccountResponse\"\x00\x12:\n\x0bSendMessage\x12\x13.SendMessageRequest\x1a\x14.SendMessageResponse\"\x00\x12\x46\n\x0fRequestMessages\x12\x17.RequestMessagesRequest\x1a\x18.RequestMessagesResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0emessages.proto\";\n\x07\x41\x63\x63ount\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x15\n\x08loggedIn\x18\x02 \x01(\x08H\x00\x88\x01\x01\x42\x0b\n\t_loggedIn\"B\n\x07Message\x12\x11\n\tsender_id\x18\x01 \x01(\t\x12\x13\n\x0breceiver_id\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"\x1e\n\x0e\x41\x63\x63ountRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"?\n\x0f\x41\x63\x63ountResponse\x12\x15\n\rresponse_code\x18\x01 \x01(\x05\x12\x15\n\rresponse_text\x18\x02 \x01(\t\"-\n\x13ListAccountsRequest\x12\x16\n\x0esearch_pattern\x18\x01 \x01(\t\"2\n\x14ListAccountsResponse\x12\x1a\n\x08\x61\x63\x63ounts\x18\x01 \x03(\x0b\x32\x08.Account\"M\n\x12SendMessageRequest\x12\x11\n\tsender_id\x18\x01 \x01(\t\x12\x13\n\x0breceiver_id\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"?\n\x13SendMessageResponse\x12\x15\n\rresponse_code\x18\x01 \x01(\x05\x12\x11\n\tdelivered\x18\x02 \x01(\x05\"@\n\x16RequestMessagesRequest\x12\x11\n\tsender_id\x18\x01 \x01(\t\x12\x13\n\x0breceiver_id\x18\x02 \x01(\t\"j\n\x17RequestMessagesResponse\x12\x15\n\rresponse_code\x18\x01 \x01(\x05\x12\x1a\n\x08messages\x18\x02 \x03(\x0b\x32\x08.Message\x12\x12\n\x05\x65rror\x18\x03 \x01(\tH\x00\x88\x01\x01\x42\x08\n\x06_error2\x9d\x03\n\x0fMessageExchange\x12\x34\n\rCreateAccount\x12\x0f.AccountRequest\x1a\x10.AccountResponse\"\x00\x12,\n\x05LogIn\x12\x0f.AccountRequest\x1a\x10.AccountResponse\"\x00\x12=\n\x0cListAccounts\x12\x14.ListAccountsRequest\x1a\x15.ListAccountsResponse\"\x00\x12-\n\x06LogOut\x12\x0f.AccountRequest\x1a\x10.AccountResponse\"\x00\x12\x34\n\rDeleteAccount\x12\x0f.AccountRequest\x1a\x10.AccountResponse\"\x00\x12:\n\x0bSendMessage\x12\x13.SendMessageRequest\x1a\x14.SendMessageResponse\"\x00\x12\x46\n\x0fRequestMessages\x12\x17.RequestMessagesRequest\x1a\x18.RequestMessagesResponse\"\x00\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'messages_pb2', globals())
@@ -29,17 +29,17 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _ACCOUNTRESPONSE._serialized_start=179
   _ACCOUNTRESPONSE._serialized_end=242
   _LISTACCOUNTSREQUEST._serialized_start=244
-  _LISTACCOUNTSREQUEST._serialized_end=265
-  _LISTACCOUNTSRESPONSE._serialized_start=267
-  _LISTACCOUNTSRESPONSE._serialized_end=317
-  _SENDMESSAGEREQUEST._serialized_start=319
-  _SENDMESSAGEREQUEST._serialized_end=396
-  _SENDMESSAGERESPONSE._serialized_start=398
-  _SENDMESSAGERESPONSE._serialized_end=461
-  _REQUESTMESSAGESREQUEST._serialized_start=463
-  _REQUESTMESSAGESREQUEST._serialized_end=527
-  _REQUESTMESSAGESRESPONSE._serialized_start=529
-  _REQUESTMESSAGESRESPONSE._serialized_end=635
-  _MESSAGEEXCHANGE._serialized_start=638
-  _MESSAGEEXCHANGE._serialized_end=1051
+  _LISTACCOUNTSREQUEST._serialized_end=289
+  _LISTACCOUNTSRESPONSE._serialized_start=291
+  _LISTACCOUNTSRESPONSE._serialized_end=341
+  _SENDMESSAGEREQUEST._serialized_start=343
+  _SENDMESSAGEREQUEST._serialized_end=420
+  _SENDMESSAGERESPONSE._serialized_start=422
+  _SENDMESSAGERESPONSE._serialized_end=485
+  _REQUESTMESSAGESREQUEST._serialized_start=487
+  _REQUESTMESSAGESREQUEST._serialized_end=551
+  _REQUESTMESSAGESRESPONSE._serialized_start=553
+  _REQUESTMESSAGESRESPONSE._serialized_end=659
+  _MESSAGEEXCHANGE._serialized_start=662
+  _MESSAGEEXCHANGE._serialized_end=1075
 # @@protoc_insertion_point(module_scope)

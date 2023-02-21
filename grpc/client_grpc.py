@@ -69,7 +69,8 @@ class GrpcClient():
 
     def list_accounts(self):
         print("list accounts")
-        list_accounts_response = self.stub.ListAccounts(pb2.ListAccountsRequest())
+        account_str = str(input("Search for accounts (* to see them all): "))
+        list_accounts_response = self.stub.ListAccounts(pb2.ListAccountsRequest(search_pattern=account_str))
         print(list_accounts_response)
 
     def log_out(self):

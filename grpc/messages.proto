@@ -40,7 +40,9 @@ message AccountResponse {
 /*
 / List Accounts
 */ 
-message ListAccountsRequest {}
+message ListAccountsRequest {
+    string search_pattern = 1;
+}
 
 message ListAccountsResponse {
     repeated Account accounts = 1;

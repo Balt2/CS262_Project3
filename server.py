@@ -2,6 +2,7 @@ import socket
 import config
 import re
 import wire_protocol
+import server_utils
 import _thread
 
 from db import DB
@@ -44,15 +45,8 @@ class Server:
                 # apply the wildcard search to results
                 for act in accounts:
                     username = act[0]
-                    if search_pattern == "*":
+                    if server_utils.should_include_account(username, search_pattern):
                         filtered_accounts.append(username)
-                    elif "*" in search_pattern:
-                        index = search_pattern.index('*')
-                        if username[0:index] == search_pattern[0:index]:
-                            filtered_accounts.append(username)
-                    else:
-                        if re.match(search_pattern, username):
-                            filtered_accounts.append(username)
 
                 return response_code, filtered_accounts
 

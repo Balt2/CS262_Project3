@@ -7,6 +7,7 @@ from db import DB
 import grpc
 import messages_pb2
 import messages_pb2_grpc
+import server_utils
 
 class MessageExchange(messages_pb2_grpc.MessageExchange):
     def __init__(self):
@@ -15,9 +16,12 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
     def ListAccounts(self, request, context):
         response_code, accounts = self.db.listAccounts()
         response = messages_pb2.ListAccountsResponse()
+        search_pattern = request.search_pattern
         for act in accounts:
-            account_obj = messages_pb2.Account(name=act[0])
-            response.accounts.append(account_obj)
+            username = act[0]
+            if server_utils.should_include_account(username, search_pattern):
+                account_obj = messages_pb2.Account(name=username)
+                response.accounts.append(account_obj)
 
         return response
 
