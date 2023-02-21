@@ -16,7 +16,7 @@ def client_options_menu(logged_in_user=None):
             data=(input("Enter a Number: ")) 
             if data.isdigit():
                 data = int(data)
-                print ("You entered: ", data)
+                # print ("You entered: ", data)
 
                 # map user input to request types
                 if data == 1:
