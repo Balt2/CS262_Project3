@@ -1,7 +1,7 @@
 
 syntax = "proto3";
 
-// The greeting service definition.
+// the message exchange service definition.
 service MessageExchange {
   rpc CreateAccount (AccountRequest) returns (AccountResponse) {}
   rpc LogIn (AccountRequest) returns (AccountResponse) {}
