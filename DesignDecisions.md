@@ -15,7 +15,7 @@ This will be our source of truth on the accounts available.
 
 ### Clients connected to server
 
-- While writing our code to enable multiple clients to connect to our server and message back and worth we had to give our server a notion of the clients that were connected. The server than should be able to send messages to these clients and close them out when a user exits their session. We were thinking of having a dictionary on the server that had a key as the username and the clientsocket as the value.
+- While writing our code to enable multiple clients to connect to our server and message back and worth we had to give our server a notion of the clients that were connected. The server than should be able to send messages to these clients and close them out when a user exits their session. We have a dictionary on the server that has a key as the username and the clientsocket as the value. That way, we can keep track of what users are active.
 
 ## Client
 
@@ -50,15 +50,15 @@ It made more sense to separate requests from responses. Request payloads could t
 3. What types of request types do we need to handle in the wire protocol? What types of errors do we need to handle in the wire protocol?
    A: We have defined request types for the main functions: create an account, log in, list users, send a message, etc (defined in the README and config files). For errors, we have decided to keep it simple and return a simple error when an operation is not possible. The client is responsible for interpreting what the error means based on the type of request.
 4. What is the limit to the size of the message that a user can send over our protocol? How we do handle messages that require multiple packets to be sent along the wire?
+   A: gRPC handles mesages up to length of 10MB. We don't anticipate messages being larger than this. See below for more discussion on message size.
 5. How should we refer to users: unique id or username?
    A: If we used unique numbers this would decrease the size of our messages but decided to use usernames as it allows us to keep track of our users more simply.
-6. Should we call eval() on message in the wire_protocal or only in instances where we know the response will be a tuple?
 
 ## GRPC Vs. Original
 
 1. One major difference between our GRPC server and our original one was that in order to get live messages we had to implement polling in gRPC rather than sending live messages as we had done on the original server. To the user the difference is not apparent because we poll the gRPC server every one second for new messages if somebody is logged in. From a network traffic standpoint though, polling every 1 second for new messages is less effecient than having the server simply send new messages to a logged in user whenever they are sent a message by a different user.
 
-   - This effected our logic for sending unsent messages. In our original server we updated if a message was sent or not soley based on if the user was logged in. We then changed on the message in the DB. This doesnt work for the gRPC implementation because we don't immediatly send messages to users even if they are logged in. Thus we have to set it to delivered once we actually deliver the messages in gRPC.
+   - This affected our logic for sending unsent messages. In our original server we updated if a message was sent or not soley based on if the user was logged in. We then changed on the message in the DB. This doesnt work for the gRPC implementation because we don't immediatly send messages to users even if they are logged in. Thus we have to set it to delivered once we actually deliver the messages in gRPC.
 
    - TO send unsent messages in the original server we query the DB for any unsent messages when the user logs in and then return any new messages. We then set these messages to having been sent.
 
