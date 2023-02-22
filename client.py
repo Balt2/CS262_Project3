@@ -21,7 +21,6 @@ class Client:
 
     def create_client_socket(self):
         clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        clientsocket.settimeout(10)
         clientsocket.connect((config.SERVER_HOST, config.PORT))
         return clientsocket
 
