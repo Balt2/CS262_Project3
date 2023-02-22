@@ -1,4 +1,6 @@
 import sys
+import _thread
+import time
 sys.path.append('../../CS262_Project1')
 
 import client_utils
@@ -30,6 +32,7 @@ class GrpcClient():
         print(response)
         if response.response_code == 200:
             self.logged_in_user = username
+            _thread.start_new_thread(self.get_new_message_stream, ())
         elif response.response_code == 404:
             print("Error creating an account: ", response.response_text)
 
@@ -40,6 +43,8 @@ class GrpcClient():
         print(response)
         if response.response_code == 200:
             self.logged_in_user = username
+            _thread.start_new_thread(self.get_new_message_stream, ())
+
         elif response.response_code == 404:
             print("Error logging in: ", response.response_text)
 
@@ -91,6 +96,21 @@ class GrpcClient():
         elif response.response_code == 404:
             print("Error logging out: ", response.response_text)
 
+    def get_new_message_stream(self):
+        count = 0
+        while self.logged_in_user:
+            #print("create message stream")
+            response = self.stub.GetNewMessages(pb2.GetNewMessagesRequest(sender_id=self.logged_in_user))
+            #print (response)
+            if response.response_code == 200:
+                print("New Messages: ", response)
+                print("Press enter to continue...")
+
+            #How long we wait to poll the server for new messages  
+            time.sleep(1)
+
+        return
+
     def end_session(self):
         print("end session")
 
@@ -115,8 +135,11 @@ class GrpcClient():
                     elif user_action == config.LOG_OUT:
                         self.log_out()
                     else:
-                        print("Please log out to perform this action.")
-                        continue
+                        if (user_action == 10):
+                            continue
+                        else:
+                            print("Please log out to perform this action.")
+                            continue
                 else:
                     if user_action == config.ACCOUNT_CREATION:
                         self.create_account()
@@ -128,8 +151,11 @@ class GrpcClient():
                         self.end_session()
                         
                     else:
-                        print("Please log in to perform this action.")
-                        continue
+                        if (user_action == 10):
+                            continue
+                        else:
+                            print("Please log in to perform this action.")
+                            continue
 
                 if user_action == config.END_SESSION:
                     print("Ending session...")

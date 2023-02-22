@@ -217,13 +217,6 @@ class Client:
             self.clientsocket.shutdown(socket.SHUT_RDWR)
             self.clientsocket.close()
     
-    
-
-# def user_exited_program(signum, client: Client):
-#         print("User exited program")
-#         client.end_session()
-#         sys.exit(0)
-
 
 
 client = Client()

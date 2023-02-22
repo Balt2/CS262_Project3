@@ -1,3 +1,4 @@
+import datetime
 import re
 
 
@@ -13,4 +14,8 @@ def should_include_account(username, search_pattern):
             return True
 
     return False
-    
+
+def timestamp_to_string(timestamp):
+    intTimestamp = int((timestamp).split(".", 1)[0])
+    timestamp = datetime.datetime.fromtimestamp(intTimestamp).strftime('%Y-%m-%d %H:%M:%S')
+    return timestamp

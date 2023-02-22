@@ -1,3 +1,4 @@
+import datetime
 import sys
 from concurrent import futures
 sys.path.append('../../CS262_Project1')
@@ -31,6 +32,7 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
             request.receiver_id,
             request.message
         )
+        
         response = messages_pb2.SendMessageResponse(response_code=response_code, delivered=delivered)
         return response
 
@@ -42,7 +44,10 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
         response = messages_pb2.RequestMessagesResponse(response_code=response_code)
         if response_code == 200:
             for msg in txt:
-                message_obj = messages_pb2.Message(sender_id=msg[1], receiver_id=msg[2], message=msg[3])
+
+                timestamp = server_utils.timestamp_to_string(msg[5])
+
+                message_obj = messages_pb2.Message(sender_id=msg[1], receiver_id=msg[2], message=msg[3], timestamp = timestamp)
                 response.messages.append(message_obj)
         elif response_code == 404:
             response.error = txt
@@ -68,6 +73,25 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
         response = messages_pb2.AccountResponse(response_code=response_code, response_text=message)
         return response
 
+    def GetNewMessages(self, request, context):
+        print("Polling Message Stream")
+        response_code, messages = self.db.getUndeliveredMessagesForUser(request.sender_id)
+        
+        if response_code == 201:
+            return messages_pb2.RequestMessagesResponse(response_code=response_code, messages=[], error="No New Messages") 
+        elif response_code == 404:
+            return messages_pb2.RequestMessagesResponse(response_code=response_code, messages=[], error=messages)
+        
+        pb2MessageList = []
+        for msg in messages:
+            timestamp = server_utils.timestamp_to_string(msg[5])
+            newMessage = messages_pb2.Message(sender_id=msg[1], receiver_id=msg[2], message=msg[3], timestamp = timestamp)
+            pb2MessageList.append(newMessage)
+
+        response = messages_pb2.RequestMessagesResponse(response_code=response_code, messages=pb2MessageList, error="") 
+        return response
+        
+
 class Server:
     def start(self):
         str_port = str(config.GRPC_PORT)
@@ -75,6 +99,7 @@ class Server:
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         messages_pb2_grpc.add_MessageExchangeServicer_to_server(MessageExchange(), server)
         server.add_insecure_port('[::]:' + str_port)
+
         server.start()
         print("Server started, listening on " + str_port)
         server.wait_for_termination()
