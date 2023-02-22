@@ -58,3 +58,14 @@ class TestClient:
             response = client_mock.log_out()
             assert response == b'7::-1::-1::12345::::'
 
+
+    def test_client_delete_account(self, mocker):
+        with patch.object(client.Client, "__init__", lambda x: None):
+            mocker.patch("time.time", return_value = 12345)
+
+            mock_input(["test_username"])
+
+            # the test
+            client_mock = client.Client()
+            response = client_mock.delete_account()
+            assert response == b'6::-1::-1::12345::::'
