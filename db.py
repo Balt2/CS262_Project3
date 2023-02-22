@@ -124,8 +124,8 @@ class DB:
             return 404, "Sender {} cannot send a message to themselves.".format(sender_username)
         
         delivered = 0
-        if self.isUserLoggedIn(receiver_username):
-            delivered = 1
+        # if self.isUserLoggedIn(receiver_username):
+        #     delivered = 1
 
         #Create ID of message
         id = str(uuid.uuid4())
@@ -133,7 +133,7 @@ class DB:
         self.cur.execute("INSERT INTO messages (id, sender_username, reciever_username, content, delivered, created_at) VALUES (?, ?, ?, ?, ?, ?)", (id, sender_username, receiver_username, content, delivered, str(time.time())))
         
         self.con.commit()
-        return 200, delivered
+        return 200, str(delivered)
     
     def getMessagesForChat(self, username: string, receiver_username: string = None):
         #Check if user exists
@@ -150,6 +150,32 @@ class DB:
         ORDER BY created_at DESC
         ''', (username, receiver_username, receiver_username, username))
         messages = self.cur.fetchall()
+        return 200, messages
+    
+    def getUndeliveredMessagesForUser(self, username: string):
+        #Check if user exists
+        if not self.doesUserExist(username):
+            return 404, "User {} does not exist.".format(username)
+        
+        #Get messages for user
+        self.cur.execute('''
+        SELECT * FROM messages 
+        WHERE reciever_username = ? 
+        AND delivered = 0 
+        ORDER BY created_at DESC
+        ''', (username,))
+        messages = self.cur.fetchall()
+        
+        if len(messages) == 0:
+            return 201, "No new messages"
+        #Set messages to delivered
+        self.cur.execute('''
+        UPDATE messages SET delivered = 1  
+        WHERE reciever_username = ? 
+        AND delivered = 0 
+        ''', (username,))
+
+        #Return messages
         return 200, messages
     
     def listMessages(self, condition: string = "", arguments = []):

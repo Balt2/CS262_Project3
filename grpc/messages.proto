@@ -10,7 +10,9 @@ service MessageExchange {
   rpc DeleteAccount (AccountRequest) returns (AccountResponse) {}
   rpc SendMessage (SendMessageRequest) returns (SendMessageResponse) {}
   rpc RequestMessages(RequestMessagesRequest) returns (RequestMessagesResponse) {}
+  rpc GetNewMessages(GetNewMessagesRequest) returns (RequestMessagesResponse) {}
 }
+
 
 message Account {
     string name = 1;
@@ -21,6 +23,7 @@ message Message {
     string sender_id = 1;
     string receiver_id = 2;
     string message = 3;
+    string timestamp = 4;
 }
 
 /*
@@ -34,6 +37,10 @@ message AccountRequest {
 message AccountResponse {
     int32 response_code = 1;
     string response_text = 2;
+}
+
+message GetNewMessagesRequest {
+    string sender_id = 1;    
 }
 
 
@@ -59,7 +66,7 @@ message SendMessageRequest {
 
 message SendMessageResponse {
     int32 response_code = 1;
-    int32 delivered = 2;
+    string delivered = 2;
 }
 
 /*

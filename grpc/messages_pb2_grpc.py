@@ -50,6 +50,11 @@ class MessageExchangeStub(object):
                 request_serializer=messages__pb2.RequestMessagesRequest.SerializeToString,
                 response_deserializer=messages__pb2.RequestMessagesResponse.FromString,
                 )
+        self.GetNewMessages = channel.unary_unary(
+                '/MessageExchange/GetNewMessages',
+                request_serializer=messages__pb2.GetNewMessagesRequest.SerializeToString,
+                response_deserializer=messages__pb2.RequestMessagesResponse.FromString,
+                )
 
 
 class MessageExchangeServicer(object):
@@ -98,6 +103,12 @@ class MessageExchangeServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetNewMessages(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MessageExchangeServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -134,6 +145,11 @@ def add_MessageExchangeServicer_to_server(servicer, server):
             'RequestMessages': grpc.unary_unary_rpc_method_handler(
                     servicer.RequestMessages,
                     request_deserializer=messages__pb2.RequestMessagesRequest.FromString,
+                    response_serializer=messages__pb2.RequestMessagesResponse.SerializeToString,
+            ),
+            'GetNewMessages': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetNewMessages,
+                    request_deserializer=messages__pb2.GetNewMessagesRequest.FromString,
                     response_serializer=messages__pb2.RequestMessagesResponse.SerializeToString,
             ),
     }
@@ -262,6 +278,23 @@ class MessageExchange(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/MessageExchange/RequestMessages',
             messages__pb2.RequestMessagesRequest.SerializeToString,
+            messages__pb2.RequestMessagesResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetNewMessages(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/MessageExchange/GetNewMessages',
+            messages__pb2.GetNewMessagesRequest.SerializeToString,
             messages__pb2.RequestMessagesResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
