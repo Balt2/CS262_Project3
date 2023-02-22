@@ -142,7 +142,6 @@ class Client:
         while True: 
             message, originalMessage = self.listen_to_server_one_time()
             print('\n')
-            #print(originalMessage)
             print(message)
             print("Press enter to continue...")
   
@@ -220,5 +219,3 @@ class Client:
 
 
 client = Client()
-
-#signal.signal(signal.SIGINT, user_exited_program, client)

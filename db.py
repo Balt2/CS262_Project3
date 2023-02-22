@@ -124,8 +124,6 @@ class DB:
             return 404, "Sender {} cannot send a message to themselves.".format(sender_username)
         
         delivered = 0
-        # if self.isUserLoggedIn(receiver_username):
-        #     delivered = 1
 
         #Create ID of message
         id = str(uuid.uuid4())

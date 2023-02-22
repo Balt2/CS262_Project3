@@ -140,7 +140,6 @@ class Server:
                 #Start new thread for each client
                 _thread.start_new_thread(self.listen_to_client, (clientsocket, client_addr))
     
-    #TODO: Signout all users when the server is shut down
     def stop(self):
         print("Server shutting down...")
         for username in self.sockets.keys():

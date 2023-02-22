@@ -16,7 +16,6 @@ def client_options_menu(logged_in_user=None):
             data=(input("Enter a Number: ")) 
             if data.isdigit():
                 data = int(data)
-                # print ("You entered: ", data)
 
                 # map user input to request types
                 if data == 1:
@@ -36,8 +35,6 @@ def client_options_menu(logged_in_user=None):
                 if data == 8:
                     return config.END_SESSION
             else:
-                #print("Invalid input")
                 return config.ERROR
         except ValueError:
-            #print ("Invalid input")
             return config.ERROR

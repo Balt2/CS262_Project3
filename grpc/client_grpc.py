@@ -99,9 +99,7 @@ class GrpcClient():
     def get_new_message_stream(self):
         count = 0
         while self.logged_in_user:
-            #print("create message stream")
             response = self.stub.GetNewMessages(pb2.GetNewMessagesRequest(sender_id=self.logged_in_user))
-            #print (response)
             if response.response_code == 200:
                 print("New Messages: ", response)
                 print("Press enter to continue...")
