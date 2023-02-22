@@ -21,6 +21,7 @@ class Client:
 
     def create_client_socket(self):
         clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        clientsocket.settimeout(10)
         clientsocket.connect((config.SERVER_HOST, config.PORT))
         return clientsocket
 
@@ -239,7 +240,12 @@ class Client:
             print(f"Unexpected {err=}, {type(err)=}")
             self.clientsocket.shutdown(socket.SHUT_RDWR)
             self.clientsocket.close()
-    
 
 
-client = Client()
+# stuff to run always here such as class/def
+def main():
+    pass
+
+if __name__ == "__main__":
+   # stuff only to run when not called via 'import' here
+   client = Client()
