@@ -54,6 +54,12 @@ It made more sense to separate requests from responses. Request payloads could t
    A: If we used unique numbers this would decrease the size of our messages but decided to use usernames as it allows us to keep track of our users more simply.
 6. Should we call eval() on message in the wire_protocal or only in instances where we know the response will be a tuple?
 
+## GRPC Vs. Original
+
+1. One major difference between our GRPC server and our original one was that in order to get live messages we had to implement polling in gRPC rather than sending live messages as we had done on the original server. To the user the difference is not apparent because we poll the gRPC server every one second for new messages if somebody is logged in. From a network traffic standpoint though, polling every 1 second for new messages is less effecient than having the server simply send new messages to a logged in user whenever they are sent a message by a different user.
+
+   - This effected our logic for sending unsent messages. In our original server we updated if a message was sent or not soley based on if the user was logged in. We then changed on the message in the DB. This doesnt work for the gRPC implementation because we don't immediatly send messages to users even if they are logged in. Thus we have to set it to delivered once we actually deliver the messages in gRPC.
+
 GRPC vs. Original?
 
 How easy is it to write code?

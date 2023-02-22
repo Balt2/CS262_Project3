@@ -68,11 +68,16 @@ class Client:
     def end_session(self):
         print("end session")
         return wire_protocol.marshal_request(config.END_SESSION, self.logged_in_user)
+    
+    def get_new_messages(self):
+        print("looking for new messages")
+        return wire_protocol.marshal_request(config.NEW_MESSAGES, self.logged_in_user)
 
     def parse_response(self, user_action, response_code, message):
         if user_action == config.ACCOUNT_CREATION:
             if response_code == 200:
                 self.logged_in_user = message
+
                 return 'Account: {} created and loged in succsessfully!'.format(message)
 
             elif response_code == 404:
@@ -81,6 +86,10 @@ class Client:
 
             if response_code == 200:
                 self.logged_in_user = message
+                #Get New Messages
+                bsmg = self.get_new_messages()
+                self.clientsocket.send(bsmg)
+
                 return 'Successfully logged in as: {}'.format(message)
             
             elif response_code == 404:
@@ -117,6 +126,28 @@ class Client:
                 return messageListResponse
             elif response_code == 404:
                 return 'Error retrieving messages: {} '.format(message)
+        
+        elif user_action == config.NEW_MESSAGES:
+            if response_code == 200:
+                messageList = eval(message)
+
+                if(len(messageList) == 0):
+                    return "No messages sent while you were logged out"
+                messageListResponse = "New Messages:\n"
+
+                for msg in messageList:
+
+                    intTimestamp = int((msg[5]).split(".", 1)[0])
+
+                    timestamp = datetime.datetime.fromtimestamp(intTimestamp).strftime('%Y-%m-%d %H:%M:%S')
+                    messageListResponse += ( "( " + timestamp + " ) " + msg[1] + " to " + msg[2] + " : " + msg[3] + '\n')
+                
+                return messageListResponse
+            elif response_code == 201:
+                return "No new messages"
+            elif response_code == 404:
+                return 'Error retrieving new messages: {} '.format(message)
+
         elif user_action == config.RECEIVE_MESSAGE:
             if response_code == 200:
                 messageTuple = eval(message)

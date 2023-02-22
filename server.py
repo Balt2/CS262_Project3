@@ -52,12 +52,13 @@ class Server:
 
             elif msg_request_type == config.SEND_MESSAGE:
                 print("Sending message...")
-                response_code, message = self.db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'])
+                response_code, message = self.db.insertMessage(msg['sender_id'], msg['receiver_id'], msg['message'], grpc_server=False)
                 if response_code == 200:
                     print("Message saved to DB! Sending message to recipient...")
                     if msg['receiver_id'] in self.sockets:
                         print("Found recipient socket")
                         self.sockets[msg['receiver_id']].send(wire_protocol.marshal_response(config.RECEIVE_MESSAGE, 200, (msg['message'], msg['sender_id'])))
+                        
                     else:
                         print("Recipient not logged in")
 
@@ -66,6 +67,14 @@ class Server:
             elif msg_request_type == config.REQUEST_MESSAGES:
                 print("Receiving message...")
                 return self.db.getMessagesForChat(msg['sender_id'], msg['receiver_id'])
+            elif msg_request_type == config.NEW_MESSAGES:
+                print("Receiving new messages...")
+                print(msg)
+                response_code, messages = self.db.getUndeliveredMessagesForUser(msg['sender_id'])
+                print(response_code)
+                print(messages)
+                return response_code, messages
+            
             elif msg_request_type == config.ACCOUNT_DELETION:
                 print("Deleting account...")
                 return self.db.deleteUser(msg['sender_id'])

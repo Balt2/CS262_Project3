@@ -110,7 +110,7 @@ class DB:
         accounts = self.cur.fetchall()
         return 200, accounts
 
-    def insertMessage(self, sender_username: string, receiver_username: string, content: string):
+    def insertMessage(self, sender_username: string, receiver_username: string, content: string, grpc_server=True):
         #Check if sender exist
         if not self.doesUserExist(sender_username):
             return 404, "Sender {} does not exist.".format(sender_username)
@@ -124,12 +124,18 @@ class DB:
             return 404, "Sender {} cannot send a message to themselves.".format(sender_username)
         
         delivered = 0
+        print("CHECKING IF USER IS LOGGED IN")
+        if not grpc_server and self.isUserLoggedIn(receiver_username):
+            print("USER IS LOGGED IN!")
+            delivered = 1
+        else:
+            print("USER IS NOT LOGGED IN")
 
         #Create ID of message
         id = str(uuid.uuid4())
         #Insert message into table
         self.cur.execute("INSERT INTO messages (id, sender_username, reciever_username, content, delivered, created_at) VALUES (?, ?, ?, ?, ?, ?)", (id, sender_username, receiver_username, content, delivered, str(time.time())))
-        
+        self.printTable("messages")
         self.con.commit()
         return 200, str(delivered)
     
@@ -155,6 +161,7 @@ class DB:
         if not self.doesUserExist(username):
             return 404, "User {} does not exist.".format(username)
         
+        self.printTable("messages")
         #Get messages for user
         self.cur.execute('''
         SELECT * FROM messages 
@@ -163,7 +170,8 @@ class DB:
         ORDER BY created_at DESC
         ''', (username,))
         messages = self.cur.fetchall()
-        
+
+
         if len(messages) == 0:
             return 201, "No new messages"
         #Set messages to delivered
