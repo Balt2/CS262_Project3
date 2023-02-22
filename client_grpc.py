@@ -1,7 +1,5 @@
-import sys
 import _thread
 import time
-sys.path.append('../')
 
 import client_utils
 import config

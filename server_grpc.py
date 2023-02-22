@@ -1,7 +1,4 @@
-import datetime
-import sys
 from concurrent import futures
-sys.path.append('../')
 
 import config 
 from db import DB

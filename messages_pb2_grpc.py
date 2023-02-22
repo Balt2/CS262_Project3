@@ -6,7 +6,7 @@ import messages_pb2 as messages__pb2
 
 
 class MessageExchangeStub(object):
-    """The greeting service definition.
+    """the message exchange service definition.
     """
 
     def __init__(self, channel):
@@ -58,7 +58,7 @@ class MessageExchangeStub(object):
 
 
 class MessageExchangeServicer(object):
-    """The greeting service definition.
+    """the message exchange service definition.
     """
 
     def CreateAccount(self, request, context):
@@ -160,7 +160,7 @@ def add_MessageExchangeServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class MessageExchange(object):
-    """The greeting service definition.
+    """the message exchange service definition.
     """
 
     @staticmethod
