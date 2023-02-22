@@ -60,10 +60,10 @@ It made more sense to separate requests from responses. Request payloads could t
 
    - This effected our logic for sending unsent messages. In our original server we updated if a message was sent or not soley based on if the user was logged in. We then changed on the message in the DB. This doesnt work for the gRPC implementation because we don't immediatly send messages to users even if they are logged in. Thus we have to set it to delivered once we actually deliver the messages in gRPC.
 
-GRPC vs. Original?
+   - TO send unsent messages in the original server we query the DB for any unsent messages when the user logs in and then return any new messages. We then set these messages to having been sent.
 
-How easy is it to write code?
+2. Size of messages
 
-Difference in amount of code written?
+   - In our original server we used the `recv(num_bytes)` funciton which allowed us to recieve a specificed number of bytes from the server. We used 1024 throughout our client. This meant that if a user had a very long chain of messages with a different user our server would crash because we were sending too many bytes. In gRPC this was not an issue because each message had a maximum size of 4mb which is 4 \* 10^6 bytes. Until this chat program is run at a much larger scale our gRPC server and client will not have an issue with the size of messages.
 
-Size of messages?
+3. For the gRPC our server had 109 lines while our original server had 159 lines. This 30% reduction was due to the fact that we didnt have add any code to start new threads each time a new client was connected and we didnt have to include logic to recieve each request. With gRPC most of the initialization of the server is done for us with `server.start()`. The gRPC client was 70 lines smaller than the original client. This is because we did not have to add any special logic to parse our respones as gRPC provided messages that were prinatable and readable by the users.
