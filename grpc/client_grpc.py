@@ -1,7 +1,7 @@
 import sys
 import _thread
 import time
-sys.path.append('../../CS262_Project1')
+sys.path.append('../CS262_Project1')
 
 import client_utils
 import config

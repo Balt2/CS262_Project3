@@ -8,7 +8,7 @@ This is a project to fulfill the requirements of the first design challenges of 
 
    You should use the IP address from the computer itself and not a website like whatismyip, because the IP exposed to the general public is different than the IPv4 from the computer's perspective. On a Mac, for example, the IP can be found by navigating to Settings > Network > Advanced > TCP/IP tab.
 
-2. From the root directory of the repository, run: `pip install grpcio grpcio-tools`
+2. From the root directory of the repository, run: `pip install grpcio grpcio-tools`.
 
 ## Compiling for gRPC
 
@@ -16,7 +16,7 @@ These steps only need to occur after developmental changes. If you just cloned t
 
 1. Navigate to the `grpc` directory and run this command from within that directory: `python3 -m grpc_tools.protoc --proto_path=. --python_out=. --grpc_python_out=. messages.proto`
 
-This will update the `messages_pb2.py` and `messages_pb2_grpc.py` files for you (or generate them if they don't exist).
+This will automatically update the `messages_pb2.py` and `messages_pb2_grpc.py` files for you (or generate them if they don't exist).
 
 ## Running Part 1 (The Wire Protocol)
 
@@ -30,11 +30,11 @@ Note: this project assumes the computers are on the same Internet network.
 
 ## Running Part 2 (gRPC)
 
-1. On one computer, run client_grpc.py. Navigate to the `grpc` directory of the repository and run:
-   `python client_grpc.py`
+1. On one computer, run client_grpc.py. From the root directory of the repository::
+   `python grpc/client_grpc.py`
 
-2. On the other computer, run server_grpc.py. Navigate to the `grpc` directory of the repository and run:
-   `python server_grpc.py`
+2. On the other computer, run server_grpc.py. From the root directory of the repository::
+   `python grpc/server_grpc.py`
 
 Note: this project assumes the computers are on the same Internet network.
 

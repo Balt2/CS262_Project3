@@ -1,7 +1,7 @@
 import datetime
 import sys
 from concurrent import futures
-sys.path.append('../../CS262_Project1')
+sys.path.append('../CS262_Project1')
 
 import config
 from db import DB
