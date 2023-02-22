@@ -181,7 +181,7 @@ class Client:
                     elif user_action == config.LOG_OUT:
                         bmsg = self.log_out(sender_id=self.logged_in_user)
                     else:
-                        if (user_action == 10):
+                        if (user_action == config.ERROR):
                             continue
                         else:
                             print("Please log out to perform this action.")

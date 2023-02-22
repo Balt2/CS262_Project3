@@ -135,7 +135,7 @@ class GrpcClient():
                     elif user_action == config.LOG_OUT:
                         self.log_out()
                     else:
-                        if (user_action == 10):
+                        if (user_action == config.ERROR):
                             continue
                         else:
                             print("Please log out to perform this action.")
@@ -151,7 +151,7 @@ class GrpcClient():
                         self.end_session()
                         
                     else:
-                        if (user_action == 10):
+                        if (user_action == config.ERROR):
                             continue
                         else:
                             print("Please log in to perform this action.")
