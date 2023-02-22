@@ -9,7 +9,7 @@ import server_utils
 
 class MessageExchange(messages_pb2_grpc.MessageExchange):
     def __init__(self):
-        self.db = DB('../development.db')
+        self.db = DB('development.db')
     
     def ListAccounts(self, request, context):
         response_code, accounts = self.db.listAccounts()

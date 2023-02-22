@@ -14,7 +14,7 @@ This is a project to fulfill the requirements of the first design challenges of 
 
 These steps only need to occur after developmental changes. If you just cloned the repo and pulled down the latest you should not need to complete this step. However, if you make any changes to `messages.proto`, you'll need to recompile by performing this step.
 
-1. Navigate to the `grpc` directory and run this command from within that directory: `python3 -m grpc_tools.protoc --proto_path=. --python_out=. --grpc_python_out=. messages.proto`
+1. Run this command from the root directory: `python3 -m grpc_tools.protoc --proto_path=. --python_out=. --grpc_python_out=. messages.proto`
 
 This will automatically update the `messages_pb2.py` and `messages_pb2_grpc.py` files for you (or generate them if they don't exist).
 
@@ -31,10 +31,10 @@ Note: this project assumes the computers are on the same Internet network.
 ## Running Part 2 (gRPC)
 
 1. On one computer, run client_grpc.py. From the root directory of the repository::
-   `python grpc/client_grpc.py`
+   `python client_grpc.py`
 
 2. On the other computer, run server_grpc.py. From the root directory of the repository::
-   `python grpc/server_grpc.py`
+   `python server_grpc.py`
 
 Note: this project assumes the computers are on the same Internet network.
 
