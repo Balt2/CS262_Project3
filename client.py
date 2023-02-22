@@ -1,5 +1,3 @@
-import signal
-import sys
 import client_utils
 import datetime
 import socket
@@ -7,20 +5,15 @@ import string
 import config
 import wire_protocol
 import threading
-import _thread
 
 class Client:
     def __init__(self):
         self.logged_in_user = None
         self.clientsocket = self.create_client_socket()
         
-        
         self.open_thread()
         self.user_thread = threading.Thread(target=self.client_main)
         self.user_thread.start()
-
-        
-
 
     def open_thread(self):
         self.receiving_thread = threading.Thread(target=self.threaded_listen_to_server)
