@@ -1,9 +1,6 @@
 import sys
 sys.path.append('../CS262_Project1')
 
-
-import pytest
-import wire_protocol
 from mock import patch
 import client
 
@@ -57,7 +54,6 @@ class TestClient:
             client_mock = client.Client()
             response = client_mock.log_out()
             assert response == b'7::-1::-1::12345::::'
-
 
     def test_client_delete_account(self, mocker):
         with patch.object(client.Client, "__init__", lambda x: None):
