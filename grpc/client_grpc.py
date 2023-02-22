@@ -1,7 +1,7 @@
 import sys
 import _thread
 import time
-sys.path.append('../CS262_Project1')
+sys.path.append('../')
 
 import client_utils
 import config
@@ -9,6 +9,7 @@ import grpc
 import messages_pb2 as pb2
 import messages_pb2_grpc as pb2_grpc
 import string
+import signal
 
 class GrpcClient():
 
@@ -22,6 +23,9 @@ class GrpcClient():
             '{}:{}'.format(self.host, self.port))
         
         self.stub = pb2_grpc.MessageExchangeStub(self.channel)
+        #Logic to handle SIGINT
+        self.SIGINT = False
+        signal.signal(signal.SIGINT, self.signal_handler)
 
         self.main()
 
@@ -97,7 +101,6 @@ class GrpcClient():
             print("Error logging out: ", response.response_text)
 
     def get_new_message_stream(self):
-        count = 0
         while self.logged_in_user:
             response = self.stub.GetNewMessages(pb2.GetNewMessagesRequest(sender_id=self.logged_in_user))
             if response.response_code == 200:
@@ -110,7 +113,16 @@ class GrpcClient():
         return
 
     def end_session(self):
-        print("end session")
+        if self.logged_in_user:
+            self.log_out()
+
+
+    def signal_handler(self, signal, frame):
+        
+        print('You quit the program!')
+        self.end_session()
+        self.SIGINT = True
+        sys.exit(0)
 
     def main(self):
         print("Starting client...")
@@ -165,3 +177,6 @@ class GrpcClient():
 
 
 client = GrpcClient()
+
+#Used if the user presses Ctrl+C
+

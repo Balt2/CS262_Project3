@@ -1,9 +1,9 @@
 import datetime
 import sys
 from concurrent import futures
-sys.path.append('../CS262_Project1')
+sys.path.append('../')
 
-import config
+import config 
 from db import DB
 import grpc
 import messages_pb2
