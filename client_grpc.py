@@ -12,31 +12,22 @@ import signal
 class GrpcClient():
 
     def __init__(self):
-        self.hosts = config.SERVER_HOSTS
-        self.ports = config.GRPC_PORTS
-
         self.logged_in_user = None
 
         # instantiate the channel
         self.stubs = []
-        for i in range(len(self.ports)):
-            print(self.hosts[i], self.ports[i])
+        for tuple in config.SERVER_HOSTS:
+            host = tuple[0]
+            port = tuple[1]
+
+            print(host, port)
             try:
                 self.channel = grpc.insecure_channel(
-                    '{}:{}'.format(self.hosts[i], config.GRPC_PORT))
+                    '{}:{}'.format(host, port))
                 stub = pb2_grpc.MessageExchangeStub(self.channel)
                 self.stubs.append(stub)
             except:
                 continue
-
-        # self.channel = grpc.insecure_channel(
-        #     '{}:{}'.format(self.host, self.port))
-        
-        # self.stub = pb2_grpc.MessageExchangeStub(self.channel)
-
-        # self.channel_2 = grpc.insecure_channel(
-        #     '{}:{}'.format(self.host, self.port_2))
-        # self.stub = pb2_grpc.MessageExchangeStub(self.channel_2)
 
         #Logic to handle SIGINT
         self.SIGINT = False

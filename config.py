@@ -1,8 +1,9 @@
-SERVER_HOST = '10.250.25.239'
-SERVER_HOSTS = ['10.250.25.239', '10.250.78.113']
-PORT = 6000
-GRPC_PORT = 6010
-GRPC_PORTS = [6010, 6020]
+SERVER_HOSTS = [
+    ['10.250.25.239', 6010 ], 
+    ['10.250.25.239', 6011 ],
+    ['10.250.78.113', 6012 ]
+]
+
 
 ## Wire Protocol Definitions
 
