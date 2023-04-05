@@ -1,6 +1,7 @@
 
 syntax = "proto3";
 
+
 // the message exchange service definition.
 service MessageExchange {
   rpc CreateAccount (AccountRequest) returns (AccountResponse) {}

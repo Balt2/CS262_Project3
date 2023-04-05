@@ -1,15 +1,29 @@
 from concurrent import futures
+import time
 
 import config 
 from db import DB
 import grpc
 import messages_pb2
 import messages_pb2_grpc
+import server_messages_pb2
+import server_messages_pb2_grpc
+
 import server_utils
 
-class MessageExchange(messages_pb2_grpc.MessageExchange):
+class ServerExchange(server_messages_pb2_grpc.ServerExchange):
     def __init__(self):
-        self.db = DB('development.db')
+        self.update_time = time.time()
+
+    def SyncDB(self, request, context):
+        response = server_messages_pb2.SyncDBResponse()
+        response.update_time = self.update_time
+        return response
+
+class MessageExchange(messages_pb2_grpc.MessageExchange):
+    def __init__(self, db):
+        self.db = db
+        self.update_time = time.time()
     
     def ListAccounts(self, request, context):
         response_code, accounts = self.db.listAccounts()
@@ -21,6 +35,9 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
                 account_obj = messages_pb2.Account(name=username)
                 response.accounts.append(account_obj)
 
+        #Update the last time the server responded (used for polling/as a heartbeat)
+        self.update_time = time.time()
+        print("SERVER RESPONDED: ")
         return response
 
     def SendMessage(self, request, context):
@@ -31,6 +48,10 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
         )
         
         response = messages_pb2.SendMessageResponse(response_code=response_code, delivered=delivered)
+        
+        #Update the last time the server responded (used for polling/as a heartbeat)
+        self.update_time = time.time()
+        
         return response
 
     def RequestMessages(self, request, context):
@@ -48,26 +69,38 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
                 response.messages.append(message_obj)
         elif response_code == 404:
             response.error = txt
+        
+        #Update the last time the server responded (used for polling/as a heartbeat)
+        self.update_time = time.time()
         return response
 
     def CreateAccount(self, request, context):
         response_code, message = self.db.insertUser(request.name)
         response = messages_pb2.AccountResponse(response_code=response_code, response_text=message)
+
+        #Update the last time the server responded (used for polling/as a heartbeat)
+        self.update_time = time.time()
         return response
 
     def LogIn(self, request, context):
         response_code, message = self.db.logIn(request.name)
         response = messages_pb2.AccountResponse(response_code=response_code, response_text=message)
+        #Update the last time the server responded (used for polling/as a heartbeat)
+        self.update_time = time.time()
         return response
 
     def LogOut(self, request, context):
         response_code, message = self.db.logOut(request.name)
         response = messages_pb2.AccountResponse(response_code=response_code, response_text=message)
+        #Update the last time the server responded (used for polling/as a heartbeat)
+        self.update_time = time.time()
         return response
 
     def DeleteAccount(self, request, context):
         response_code, message = self.db.deleteUser(request.name)
         response = messages_pb2.AccountResponse(response_code=response_code, response_text=message)
+        #Update the last time the server responded (used for polling/as a heartbeat)
+        self.update_time = time.time()
         return response
 
     def GetNewMessages(self, request, context):
@@ -85,16 +118,18 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
             newMessage = messages_pb2.Message(sender_id=msg[1], receiver_id=msg[2], message=msg[3], timestamp = timestamp)
             pb2MessageList.append(newMessage)
 
-        response = messages_pb2.RequestMessagesResponse(response_code=response_code, messages=pb2MessageList, error="") 
+        response = messages_pb2.RequestMessagesResponse(response_code=response_code, messages=pb2MessageList, error="")
+        #Update the last time the server responded (used for polling/as a heartbeat)
+        self.update_time = time.time() 
         return response
         
 
 class Server:
     def start(self):
-        str_port = str(config.GRPC_PORT)
-
+        str_port = str(config.GRPC_PORTS[1])
+        db = DB('development.db')
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        messages_pb2_grpc.add_MessageExchangeServicer_to_server(MessageExchange(), server)
+        messages_pb2_grpc.add_MessageExchangeServicer_to_server(MessageExchange(db), server)
         server.add_insecure_port('[::]:' + str_port)
 
         server.start()
