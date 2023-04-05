@@ -12,17 +12,17 @@ import signal
 class GrpcClient():
 
     def __init__(self):
-        self.host = config.SERVER_HOST
+        self.hosts = config.SERVER_HOSTS
         self.ports = config.GRPC_PORTS
 
         self.logged_in_user = None
 
         # instantiate the channel
         self.stubs = []
-        for port in self.ports:
+        for i in range(len(self.ports)):
             try:
                 self.channel = grpc.insecure_channel(
-                    '{}:{}'.format(self.host, port))
+                    '{}:{}'.format(self.hosts[i], config.GRPC_PORT))
                 stub = pb2_grpc.MessageExchangeStub(self.channel)
                 self.stubs.append(stub)
             except:
@@ -78,18 +78,18 @@ class GrpcClient():
         got_response = False
         index = 0
 
-        exec_string = "stub.CreateAccount(pb2.AccountRequest(name='{}'))".format(username)
-        #param1 = pb2.AccountRequest(name=username)
-        response = self.send_exec(code=exec_string)
+        # exec_string = "stub.CreateAccount(pb2.AccountRequest(name='{}'))".format(username)
+        # #param1 = pb2.AccountRequest(name=username)
+        # response = self.send_exec(code=exec_string)
 
-        # for stub in self.stubs:
-        #     res = stub.CreateAccount(pb2.AccountRequest(name=username))
-        #     if res.response_code == 200 and not got_response:
-        #         response = res
-        #         got_response = True
-        #     elif index == len(self.stubs) - 1 and not got_response:
-        #         response = res
-        #     index += 1
+        for stub in self.stubs:
+            res = stub.CreateAccount(pb2.AccountRequest(name=username))
+            if res.response_code == 200 and not got_response:
+                response = res
+                got_response = True
+            elif index == len(self.stubs) - 1 and not got_response:
+                response = res
+            index += 1
 
         print(response)
         if response.response_code == 200:
@@ -105,7 +105,7 @@ class GrpcClient():
 
         for stub in self.stubs:
             response = stub.LogIn(pb2.AccountRequest(name=username))
-        
+
 
         print(response)
         if response.response_code == 200:
