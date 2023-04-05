@@ -132,32 +132,34 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
 class Server:
 
     def sync_with_other_servers(self):
-        other_servers = [0,1,2] - self.server_number
+        other_servers = set([0,1,2]) - set(self.server_number)
         for other in other_servers:
             # connect to other servers
             server_host = config.SERVER_HOSTS[other]
             host = server_host[0]
             port = server_host[1]
-            self.channel = grpc.insecure_channel(
+            try:
+                self.channel = grpc.insecure_channel(
                     '{}:{}'.format(host, port))
-            stub = server_messages_pb2_grpc.ServerExchangeStub(self.channel)
-
-            clock = ask_for_logical_clock()
-            if clock < self.logical_clock:
-                db = fetch_db()
-                return db
-
+                stub = server_messages_pb2_grpc.ServerExchangeStub(self.channel)
+                clock = ask_for_logical_clock()
+                if clock < self.logical_clock:
+                    db = fetch_db()
+                    return db
+            except:
+                continue
+        
     def start(self):
+        self.logical_clock = 0
         self.server_number = int(input("Enter server 1 (0-2): "))
         server_host = config.SERVER_HOSTS[self.server_number]
         port = server_host[1]
         str_port = str(port)
 
-
         if (self.server_number == 0):
             db = DB('development.db')
         else:
-            #get updated db
+            # get updated db from peers
             db = self.sync_with_other_servers()
 
 
