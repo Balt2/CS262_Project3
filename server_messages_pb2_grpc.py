@@ -19,12 +19,23 @@ class ServerExchangeStub(object):
                 request_serializer=server__messages__pb2.SyncDBRequest.SerializeToString,
                 response_deserializer=server__messages__pb2.SyncDBResponse.FromString,
                 )
+        self.GetLogicalClock = channel.unary_unary(
+                '/ServerExchange/GetLogicalClock',
+                request_serializer=server__messages__pb2.GetLogicalClockRequest.SerializeToString,
+                response_deserializer=server__messages__pb2.GetLogicalClockResponse.FromString,
+                )
 
 
 class ServerExchangeServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def SyncDB(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetLogicalClock(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -37,6 +48,11 @@ def add_ServerExchangeServicer_to_server(servicer, server):
                     servicer.SyncDB,
                     request_deserializer=server__messages__pb2.SyncDBRequest.FromString,
                     response_serializer=server__messages__pb2.SyncDBResponse.SerializeToString,
+            ),
+            'GetLogicalClock': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetLogicalClock,
+                    request_deserializer=server__messages__pb2.GetLogicalClockRequest.FromString,
+                    response_serializer=server__messages__pb2.GetLogicalClockResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -62,5 +78,22 @@ class ServerExchange(object):
         return grpc.experimental.unary_unary(request, target, '/ServerExchange/SyncDB',
             server__messages__pb2.SyncDBRequest.SerializeToString,
             server__messages__pb2.SyncDBResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetLogicalClock(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ServerExchange/GetLogicalClock',
+            server__messages__pb2.GetLogicalClockRequest.SerializeToString,
+            server__messages__pb2.GetLogicalClockResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -2,8 +2,15 @@ syntax = "proto3";
 
 service ServerExchange {
     rpc SyncDB (SyncDBRequest) returns (SyncDBResponse) {}
+    rpc GetLogicalClock (GetLogicalClockRequest) returns (GetLogicalClockResponse) {}
 }
 
+message GetLogicalClockRequest {
+}
+
+message GetLogicalClockResponse {
+    int32 logical_clock = 1;
+}
 
 message DBAccount {
     string username = 1;
