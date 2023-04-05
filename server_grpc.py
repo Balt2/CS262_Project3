@@ -126,7 +126,7 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
 
 class Server:
     def start(self):
-        str_port = str(config.GRPC_PORTS[1])
+        str_port = str(config.GRPC_PORTS[0])
         db = DB('development.db')
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         messages_pb2_grpc.add_MessageExchangeServicer_to_server(MessageExchange(db), server)

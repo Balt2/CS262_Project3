@@ -20,6 +20,7 @@ class GrpcClient():
         # instantiate the channel
         self.stubs = []
         for i in range(len(self.ports)):
+            print(self.hosts[i], self.ports[i])
             try:
                 self.channel = grpc.insecure_channel(
                     '{}:{}'.format(self.hosts[i], config.GRPC_PORT))
