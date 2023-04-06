@@ -15,6 +15,7 @@ class ServerExchange(server_messages_pb2_grpc.ServerExchange):
     def __init__(self, db, logical_clock):
         self.db = db
         self.logical_clock = logical_clock
+        print("Server Exchange Init")
 
     def SyncDB(self, request, context):
         response = server_messages_pb2.SyncDBResponse()
@@ -24,8 +25,9 @@ class ServerExchange(server_messages_pb2_grpc.ServerExchange):
     def GetLogicalClock(self, request, context):
         print("GET LOGICAL CLOCK")
         response = server_messages_pb2.GetLogicalClockResponse()
-        print(response)
+        
         response.logical_clock = self.logical_clock.clock
+
         return response
 
 class LogicalClock():
@@ -160,8 +162,8 @@ class Server:
                 stub = server_messages_pb2_grpc.ServerExchangeStub(self.channel)
                 print("STUB: ", stub)
                 
-                logical_clock = stub.GetLogicalClock(server_messages_pb2.GetLogicalClockRequest())
-                print(logical_clock)
+                response = stub.GetLogicalClock(server_messages_pb2.GetLogicalClockRequest())
+                print("LOGICAL CLOCK: ", response.logical_clock)
                 other_server_stubs[other] = stub                
             except:
                 print("EXCEPTION")
@@ -181,8 +183,7 @@ class Server:
         self.logical_clock = 0
         self.server_number = int(input("Enter server 1 (0-2): "))
         server_host = config.SERVER_HOSTS[self.server_number]
-        server_exchange_port = server_host[1]
-        message_exchange_port = server_host[2]
+        server_port = server_host[1]
 
         self.logical_clock = LogicalClock()
 
@@ -194,16 +195,17 @@ class Server:
             db = self.sync_with_other_servers()
 
 
-        server_exchange = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        server_messages_pb2_grpc.add_ServerExchangeServicer_to_server(ServerExchange(db, self.logical_clock), server_exchange)
-        server_exchange.add_insecure_port('[::]:' + str(server_exchange_port))
 
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+
+        server_messages_pb2_grpc.add_ServerExchangeServicer_to_server(ServerExchange(db, self.logical_clock), server)
         messages_pb2_grpc.add_MessageExchangeServicer_to_server(MessageExchange(db, self.logical_clock), server)
-        server.add_insecure_port('[::]:' + str(message_exchange_port))
+
+        server.add_insecure_port('[::]:' + str(server_port))
 
         server.start()
-        print("Server started, listening on " + str(message_exchange_port))
+        print("Server started, listening on " + str(server_port))
+        
         server.wait_for_termination()
 
 server = Server()
