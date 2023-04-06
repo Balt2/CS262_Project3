@@ -20,8 +20,8 @@ message DBAccount {
 
   message DBMessage {
     string id = 1;
-    string sender_username = 2;
-    string reciever_username = 3;
+    string sender_id = 2;
+    string receiver_id = 3;
     string content = 4;
     int32 delivered = 5;
     string created_at = 6;

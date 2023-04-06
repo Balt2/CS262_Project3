@@ -18,7 +18,20 @@ class ServerExchange(server_messages_pb2_grpc.ServerExchange):
         print("Server Exchange Init")
 
     def SyncDB(self, request, context):
+        print("SYNC DB")
         response = server_messages_pb2.SyncDBResponse()
+        _, accounts = self.db.listAccounts()
+        for account in accounts:
+            account_obj = server_messages_pb2.DBAccount(username=account[0], logged_in=account[1], created_at=account[2])
+            response.db_accounts.append(account_obj)
+
+        print("Accounts: ", accounts)
+        _, messages = self.db.listMessages()
+        for message in messages:
+            message_obj = server_messages_pb2.DBMessage(id=message[0], sender_id=message[1], receiver_id=message[2], content=message[3], delivered=message[4], created_at=message[5])
+            response.db_messages.append(message_obj)
+        
+        print("Messages: ", messages)
         #response.db_accounts 
         return response
     
@@ -148,6 +161,7 @@ class Server:
     def sync_with_other_servers(self):
         other_servers = set([0,1,2]) - set([self.server_number])
         other_server_stubs = {}
+        max_logical_clock = (-1, 0) #(logical_clock, server_number)
         for other in other_servers:
             
             # connect to other servers
@@ -160,24 +174,27 @@ class Server:
                     '{}:{}'.format(host, port))
                 print("CHANNEL: ", self.channel)
                 stub = server_messages_pb2_grpc.ServerExchangeStub(self.channel)
-                print("STUB: ", stub)
                 
                 response = stub.GetLogicalClock(server_messages_pb2.GetLogicalClockRequest())
                 print("LOGICAL CLOCK: ", response.logical_clock)
+                if response.logical_clock > max_logical_clock[0]:
+                    max_logical_clock = (response.logical_clock, other)
                 other_server_stubs[other] = stub                
             except:
                 print("EXCEPTION")
                 continue
         
-        # get db from other servers
-        # for other in other_server_stubs:
-        #     stub = other_server_stubs[other]
-        #     try:
-        #         db = stub.GetDB(server_messages_pb2.GetDBRequest())
-        #         db = pickle.loads(db.db)
-        #         return db
-        #     except:
-        #         continue
+        # get db from server with max logical clock
+        latest_stub = other_server_stubs[max_logical_clock[1]]
+        response = latest_stub.SyncDB(server_messages_pb2.SyncDBRequest())
+        db = DB("{}-db".format(self.server_number))
+
+        db.wipeDBEntries()
+        
+        db.forceInsertListOfAccounts(response.db_accounts)
+        db.forceInsertListOfMessages(response.db_messages)
+        return db
+
         
     def start(self):
         self.logical_clock = 0

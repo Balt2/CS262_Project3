@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15server_messages.proto\"\x18\n\x16GetLogicalClockRequest\"0\n\x17GetLogicalClockResponse\x12\x15\n\rlogical_clock\x18\x01 \x01(\x05\"D\n\tDBAccount\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x11\n\tlogged_in\x18\x02 \x01(\x05\x12\x12\n\ncreated_at\x18\x03 \x01(\t\"\x83\x01\n\tDBMessage\x12\n\n\x02id\x18\x01 \x01(\t\x12\x17\n\x0fsender_username\x18\x02 \x01(\t\x12\x19\n\x11reciever_username\x18\x03 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x04 \x01(\t\x12\x11\n\tdelivered\x18\x05 \x01(\x05\x12\x12\n\ncreated_at\x18\x06 \x01(\t\"O\n\rSyncDBRequest\x12\x16\n\x0eserver_address\x18\x01 \x01(\t\x12\x13\n\x0bserver_port\x18\x02 \x01(\x05\x12\x11\n\ttimestamp\x18\x03 \x01(\t\"e\n\x0eSyncDBResponse\x12\x11\n\ttimestamp\x18\x01 \x01(\t\x12\x1f\n\x0b\x64\x62_accounts\x18\x02 \x03(\x0b\x32\n.DBAccount\x12\x1f\n\x0b\x64\x62_messages\x18\x03 \x03(\x0b\x32\n.DBMessage2\x85\x01\n\x0eServerExchange\x12+\n\x06SyncDB\x12\x0e.SyncDBRequest\x1a\x0f.SyncDBResponse\"\x00\x12\x46\n\x0fGetLogicalClock\x12\x17.GetLogicalClockRequest\x1a\x18.GetLogicalClockResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15server_messages.proto\"\x18\n\x16GetLogicalClockRequest\"0\n\x17GetLogicalClockResponse\x12\x15\n\rlogical_clock\x18\x01 \x01(\x05\"D\n\tDBAccount\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x11\n\tlogged_in\x18\x02 \x01(\x05\x12\x12\n\ncreated_at\x18\x03 \x01(\t\"w\n\tDBMessage\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tsender_id\x18\x02 \x01(\t\x12\x13\n\x0breceiver_id\x18\x03 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x04 \x01(\t\x12\x11\n\tdelivered\x18\x05 \x01(\x05\x12\x12\n\ncreated_at\x18\x06 \x01(\t\"O\n\rSyncDBRequest\x12\x16\n\x0eserver_address\x18\x01 \x01(\t\x12\x13\n\x0bserver_port\x18\x02 \x01(\x05\x12\x11\n\ttimestamp\x18\x03 \x01(\t\"e\n\x0eSyncDBResponse\x12\x11\n\ttimestamp\x18\x01 \x01(\t\x12\x1f\n\x0b\x64\x62_accounts\x18\x02 \x03(\x0b\x32\n.DBAccount\x12\x1f\n\x0b\x64\x62_messages\x18\x03 \x03(\x0b\x32\n.DBMessage2\x85\x01\n\x0eServerExchange\x12+\n\x06SyncDB\x12\x0e.SyncDBRequest\x1a\x0f.SyncDBResponse\"\x00\x12\x46\n\x0fGetLogicalClock\x12\x17.GetLogicalClockRequest\x1a\x18.GetLogicalClockResponse\"\x00\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'server_messages_pb2', globals())
@@ -26,12 +26,12 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _GETLOGICALCLOCKRESPONSE._serialized_end=99
   _DBACCOUNT._serialized_start=101
   _DBACCOUNT._serialized_end=169
-  _DBMESSAGE._serialized_start=172
-  _DBMESSAGE._serialized_end=303
-  _SYNCDBREQUEST._serialized_start=305
-  _SYNCDBREQUEST._serialized_end=384
-  _SYNCDBRESPONSE._serialized_start=386
-  _SYNCDBRESPONSE._serialized_end=487
-  _SERVEREXCHANGE._serialized_start=490
-  _SERVEREXCHANGE._serialized_end=623
+  _DBMESSAGE._serialized_start=171
+  _DBMESSAGE._serialized_end=290
+  _SYNCDBREQUEST._serialized_start=292
+  _SYNCDBREQUEST._serialized_end=371
+  _SYNCDBRESPONSE._serialized_start=373
+  _SYNCDBRESPONSE._serialized_end=474
+  _SERVEREXCHANGE._serialized_start=477
+  _SERVEREXCHANGE._serialized_end=610
 # @@protoc_insertion_point(module_scope)

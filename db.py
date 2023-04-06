@@ -33,6 +33,11 @@ class DB:
                                         )''')
         self.con.commit()
 
+    def wipeDBEntries(self):
+        self.cur.execute("DELETE FROM accounts")
+        self.cur.execute("DELETE FROM messages")
+        self.con.commit()
+        
     def doesUserExist(self, username: string):
         self.cur.execute("SELECT * FROM accounts WHERE username = ?", (username,))
         user = self.cur.fetchone()
@@ -138,6 +143,18 @@ class DB:
         self.printTable("messages")
         self.con.commit()
         return 200, str(delivered)
+    
+    def forceInsertListOfMessages(self, messages: list):
+        for message in messages:
+            self.cur.execute("INSERT INTO messages (id, sender_username, reciever_username, content, delivered, created_at) VALUES (?, ?, ?, ?, ?, ?)", (message.id, message.sender_id, message.receiver_id, message.content, message.delivered, message.created_at))
+        
+        return 200, "Messages inserted successfully."
+    
+    def forceInsertListOfAccounts(self, accounts: list):
+        for account in accounts:
+            self.cur.execute("INSERT INTO accounts (username, logged_in, created_at) VALUES (?, ?, ?)", (account.username, account.logged_in, account.created_at))
+        
+        return 200, "Accounts inserted successfully."
     
     def getMessagesForChat(self, username: string, receiver_username: string = None):
         #Check if user exists
