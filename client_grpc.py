@@ -44,14 +44,22 @@ class GrpcClient():
             except:
                 continue
      
-    def send_exec(self, code):
+    def send_exec(self, code, no_response_code=False):
         got_response = False
         index = 0
         response = None
+        loc = {}
         for stub in self.stubs:
-            print(code)
-            res = exec(code)
-            print(res)
+            exec(code)
+            #print("RES: ", locals()['res'])
+            res = locals()['exec_res']
+
+            #List accounts does not have a response code
+            if no_response_code == False:
+                response = res
+                return response
+            
+
             if res.response_code == 200 and not got_response:
                 response = res
                 got_response = True
@@ -70,7 +78,8 @@ class GrpcClient():
         got_response = False
         index = 0
 
-        # exec_string = "stub.CreateAccount(pb2.AccountRequest(name='{}'))".format(username)
+        exec_string = "stub.CreateAccount(pb2.AccountRequest(name='{}'))".format(username)
+
         # #param1 = pb2.AccountRequest(name=username)
         # response = self.send_exec(code=exec_string)
 
@@ -136,11 +145,21 @@ class GrpcClient():
     def list_accounts(self):
         print("list accounts")
         account_str = str(input("Search for accounts (* to see them all): "))
-        for stub in self.stubs:
-            try:
-                list_accounts_response = stub.ListAccounts(pb2.ListAccountsRequest(search_pattern=account_str))
-            except:
-                continue
+
+
+        
+
+        # for stub in self.stubs:
+        #     try:
+        #         list_accounts_response = stub.ListAccounts(pb2.ListAccountsRequest(search_pattern=account_str))
+        #         print(list_accounts_response)
+        #     except:
+        #         continue
+
+        exec_string = """print(stub)
+exec_res = stub.ListAccounts(pb2.ListAccountsRequest(search_pattern='{}'))
+        """.format(account_str)
+        list_accounts_response = self.send_exec(code=exec_string)
 
         print(list_accounts_response)
 
