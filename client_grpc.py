@@ -27,6 +27,7 @@ class GrpcClient():
                 stub = pb2_grpc.MessageExchangeStub(self.channel)
                 self.stubs.append(stub)
             except:
+                print("EXCEPTION with host: ", host, " port: ", port)
                 continue
 
         #Logic to handle SIGINT
@@ -35,40 +36,28 @@ class GrpcClient():
 
         self.main()
 
-    
-    def send_to_all_stubs(self, request):
+
+    def send_exec(self, code):
+        responses = []
         for stub in self.stubs:
+            #We do try/catch here because we may no longer be connected to a given stub
             try:
-                response = stub.SendMessage(request)
-                return response
+                #We need to use exec here because we are dynamically creating the function call
+                exec(code)
             except:
                 continue
-     
-    def send_exec(self, code, no_response_code=False):
-        got_response = False
-        index = 0
-        response = None
-        loc = {}
-        for stub in self.stubs:
-            exec(code)
-            #print("RES: ", locals()['res'])
             res = locals()['exec_res']
+            for r in responses:
+                if res == r:
+                    return res
+            responses.append(res)
 
-            #List accounts does not have a response code
-            if no_response_code == False:
-                response = res
-                return response
-            
-
-            if res.response_code == 200 and not got_response:
-                response = res
-                got_response = True
-            elif index == len(self.stubs) - 1 and not got_response:
-                response = res
-            index += 1    
-                
-            
-        return response
+        if len(responses) > 0:
+            return responses[0]
+        else:
+            print("All servers down or unresponseive")
+            return None
+        
     
     def create_account(self):
         print("create account")
@@ -78,19 +67,8 @@ class GrpcClient():
         got_response = False
         index = 0
 
-        exec_string = "stub.CreateAccount(pb2.AccountRequest(name='{}'))".format(username)
-
-        # #param1 = pb2.AccountRequest(name=username)
-        # response = self.send_exec(code=exec_string)
-
-        for stub in self.stubs:
-            res = stub.CreateAccount(pb2.AccountRequest(name=username))
-            if res.response_code == 200 and not got_response:
-                response = res
-                got_response = True
-            elif index == len(self.stubs) - 1 and not got_response:
-                response = res
-            index += 1
+        exec_string = """exec_res = stub.CreateAccount(pb2.AccountRequest(name='{}'))""".format(username)
+        response = self.send_exec(exec_string)
 
         print(response)
         if response.response_code == 200:
@@ -103,10 +81,8 @@ class GrpcClient():
         print("log in")
         username = str(input("Username: "))
 
-
-        for stub in self.stubs:
-            response = stub.LogIn(pb2.AccountRequest(name=username))
-
+        exec_string = """exec_res = stub.LogIn(pb2.AccountRequest(name='{}'))""".format(username)
+        response = self.send_exec(exec_string)
 
         print(response)
         if response.response_code == 200:
@@ -120,73 +96,53 @@ class GrpcClient():
         print("send_message")
         user_msg = str(input("Message to Send: "))
         receiver_id = str(input("Receiver username: "))
-        for stub in self.stubs:
-            send_message_response = stub.SendMessage(
-                pb2.SendMessageRequest(
-                    sender_id=self.logged_in_user,
-                    receiver_id=receiver_id,
-                    message=user_msg
-                )
-            )
-        print(send_message_response)
+        exec_string = """exec_res = stub.SendMessage(pb2.SendMessageRequest(sender_id='{}', receiver_id='{}', message='{}'))""".format(self.logged_in_user, receiver_id, user_msg)
+        response = self.send_exec(exec_string)
+        print(response)
 
     def request_messages(self):
         print("request messages")
         receiver_id = str(input("Messages with username: "))
-        for stub in self.stubs:
-            request_messages_response = stub.RequestMessages(
-                pb2.RequestMessagesRequest(
-                    sender_id=self.logged_in_user,
-                    receiver_id=receiver_id
-                )
-            )
-        print(request_messages_response)
+        exec_string = """exec_res = stub.RequestMessages(pb2.RequestMessagesRequest(sender_id='{}', receiver_id='{}'))""".format(self.logged_in_user, receiver_id)
+        response = self.send_exec(exec_string)
+        print(response)
+
 
     def list_accounts(self):
         print("list accounts")
         account_str = str(input("Search for accounts (* to see them all): "))
 
-
-        
-
-        # for stub in self.stubs:
-        #     try:
-        #         list_accounts_response = stub.ListAccounts(pb2.ListAccountsRequest(search_pattern=account_str))
-        #         print(list_accounts_response)
-        #     except:
-        #         continue
-
-        exec_string = """print(stub)
-exec_res = stub.ListAccounts(pb2.ListAccountsRequest(search_pattern='{}'))
-        """.format(account_str)
+        exec_string = """exec_res = stub.ListAccounts(pb2.ListAccountsRequest(search_pattern='{}'))""".format(account_str)
         list_accounts_response = self.send_exec(code=exec_string)
 
         print(list_accounts_response)
 
     def log_out(self):
         print("log out")
-        for stub in self.stubs:
-            response = stub.LogOut(pb2.AccountRequest(name=self.logged_in_user))
-        print(response)
+        exec_string = """exec_res = stub.LogOut(pb2.AccountRequest(name='{}'))""".format(self.logged_in_user)
+        response = self.send_exec(code=exec_string)
+
         if response.response_code == 200:
             self.logged_in_user = None
+            print("Logged out successfully")
         elif response.response_code == 404:
             print("Error logging out: ", response.response_text)
 
     def delete_account(self, sender_id: string="-1"):
         print("delete_account")
-        for stub in self.stubs:
-            response = stub.DeleteAccount(pb2.AccountRequest(name=self.logged_in_user))
+        exec_string = """exec_res = stub.DeleteAccount(pb2.AccountRequest(name='{}'))""".format(self.logged_in_user)
+        response = self.send_exec(code=exec_string)
         print(response)
         if response.response_code == 200:
+            print("Deleted account successfully")
             self.logged_in_user = None
         elif response.response_code == 404:
             print("Error logging out: ", response.response_text)
 
     def get_new_message_stream(self):
         while self.logged_in_user:
-            for stub in self.stubs:
-                response = stub.GetNewMessages(pb2.GetNewMessagesRequest(sender_id=self.logged_in_user))
+            exec_string = """exec_res = stub.GetNewMessages(pb2.GetNewMessagesRequest(sender_id='{}'))""".format(self.logged_in_user)
+            response = self.send_exec(code=exec_string)
 
             if response.response_code == 200:
                 print("New Messages: ", response)

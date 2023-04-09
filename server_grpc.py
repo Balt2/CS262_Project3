@@ -60,6 +60,7 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
     def ListAccounts(self, request, context):
         response_code, accounts = self.db.listAccounts()
         response = messages_pb2.ListAccountsResponse()
+        response.response_code = response_code
         search_pattern = request.search_pattern
         for act in accounts:
             username = act[0]
@@ -69,6 +70,7 @@ class MessageExchange(messages_pb2_grpc.MessageExchange):
 
         #Update the last time the server responded (used for polling/as a heartbeat)
         self.logical_clock.increment()
+
         print("SERVER RESPONDED: ")
         return response
 

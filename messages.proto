@@ -53,7 +53,8 @@ message ListAccountsRequest {
 }
 
 message ListAccountsResponse {
-    repeated Account accounts = 1;
+    int32 response_code = 1;
+    repeated Account accounts = 2;
 }
 
 /*
