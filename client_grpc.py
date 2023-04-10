@@ -51,6 +51,7 @@ class GrpcClient():
                 self.stubs[tuple] = stub
                 connected_servers.add(tuple)
             except:
+                self.stubs[tuple] = 'DISCONNECTED'
                 continue
 
         self.disconnected_servers = self.disconnected_servers - connected_servers
@@ -61,6 +62,9 @@ class GrpcClient():
         responses = []
         for host_tuple, stub in self.stubs.items():
             #We do try/catch here because we may no longer be connected to a given stub
+            if stub == 'DISCONNECTED':
+                continue
+            
             try:
                 #We need to use exec here because we are dynamically creating the function call
                 exec(code)
@@ -76,7 +80,7 @@ class GrpcClient():
 
         for host_tuple in new_disconnects:
             self.disconnected_servers.add(host_tuple)
-            self.stubs.pop(host_tuple)
+            #self.stubs.pop(host_tuple)
 
         if len(responses) > 0:
             return responses[0]
