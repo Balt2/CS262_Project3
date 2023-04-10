@@ -186,6 +186,10 @@ class Server:
                 print("EXCEPTION")
                 continue
         
+        #IF unable to connect to any other servers, return local db
+        if max_logical_clock[0] == -1 or other_server_stubs == {}:
+            return DB("development.db")
+        
         # get db from server with max logical clock
         latest_stub = other_server_stubs[max_logical_clock[1]]
         response = latest_stub.SyncDB(server_messages_pb2.SyncDBRequest())
@@ -206,12 +210,9 @@ class Server:
 
         self.logical_clock = LogicalClock()
 
-        if (self.server_number == 0):
-            db = DB('development.db')
-            
-        else:
-            # get updated db from peers
-            db = self.sync_with_other_servers()
+
+        # get updated db from peers
+        db = self.sync_with_other_servers()
 
 
 
