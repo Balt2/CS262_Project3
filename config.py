@@ -1,13 +1,11 @@
 SERVER_HOSTS = [
-    ('10.228.146.16', 6010 ), 
-    ('10.228.146.16', 6011 ),
-    ('10.228.146.13', 6012 )
+    ('10.228.146.16', 6010 ), # server 0
+    ('10.228.146.16', 6011 ), # server 1
+    ('10.228.146.13', 6012 )  # server 2
 ]
 
 
-## Wire Protocol Definitions
-
-# Request Types, used to identify the type of request in the eye of the client
+# Request Types
 ACCOUNT_CREATION = 1
 LOG_IN = 2
 LIST_ACCOUNTS = 3

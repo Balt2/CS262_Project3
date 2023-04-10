@@ -4,7 +4,7 @@ This is a project to fulfill the requirements of the third design challenges of 
 
 ## Setup
 
-1. Edit config.py to the IP address of the server hosts. This will need to be the same value on both the client and server.
+1. Edit config.py to the IP address of the server hosts. This will need to be the same value on both the client and server. We recommend using the IP of the first computer for server 0 and 1 and the IP of the second computer for server 2.
 
    You should use the IP address from the computer itself and not a website like whatismyip, because the IP exposed to the general public is different than the IPv4 from the computer's perspective. On a Mac, for example, the IP can be found by navigating to Settings > Network > Advanced > TCP/IP tab.
 
