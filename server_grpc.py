@@ -188,7 +188,7 @@ class Server:
         
         #IF unable to connect to any other servers, return local db
         if max_logical_clock[0] == -1 or other_server_stubs == {}:
-            return DB("development.db")
+            return DB("{}-db".format(self.server_number))
         
         # get db from server with max logical clock
         latest_stub = other_server_stubs[max_logical_clock[1]]
