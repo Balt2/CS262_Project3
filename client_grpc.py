@@ -67,7 +67,7 @@ class GrpcClient():
         got_response = False
         index = 0
 
-        exec_string = """exec_res = stub.CreateAccount(pb2.AccountRequest(name='{}'))""".format(username)
+        exec_string = """exec_res = stub.CreateAccount(pb2.AccountRequest(name='{}'), timeout = 1)""".format(username)
         response = self.send_exec(exec_string)
 
         print(response)
@@ -81,7 +81,7 @@ class GrpcClient():
         print("log in")
         username = str(input("Username: "))
 
-        exec_string = """exec_res = stub.LogIn(pb2.AccountRequest(name='{}'))""".format(username)
+        exec_string = """exec_res = stub.LogIn(pb2.AccountRequest(name='{}'), timeout = 1)""".format(username)
         response = self.send_exec(exec_string)
 
         print(response)
@@ -96,14 +96,14 @@ class GrpcClient():
         print("send_message")
         user_msg = str(input("Message to Send: "))
         receiver_id = str(input("Receiver username: "))
-        exec_string = """exec_res = stub.SendMessage(pb2.SendMessageRequest(sender_id='{}', receiver_id='{}', message='{}'))""".format(self.logged_in_user, receiver_id, user_msg)
+        exec_string = """exec_res = stub.SendMessage(pb2.SendMessageRequest(sender_id='{}', receiver_id='{}', message='{}'), timeout = 1)""".format(self.logged_in_user, receiver_id, user_msg)
         response = self.send_exec(exec_string)
         print(response)
 
     def request_messages(self):
         print("request messages")
         receiver_id = str(input("Messages with username: "))
-        exec_string = """exec_res = stub.RequestMessages(pb2.RequestMessagesRequest(sender_id='{}', receiver_id='{}'))""".format(self.logged_in_user, receiver_id)
+        exec_string = """exec_res = stub.RequestMessages(pb2.RequestMessagesRequest(sender_id='{}', receiver_id='{}'), timeout = 1)""".format(self.logged_in_user, receiver_id)
         response = self.send_exec(exec_string)
         print(response)
 
@@ -112,14 +112,14 @@ class GrpcClient():
         print("list accounts")
         account_str = str(input("Search for accounts (* to see them all): "))
 
-        exec_string = """exec_res = stub.ListAccounts(pb2.ListAccountsRequest(search_pattern='{}'))""".format(account_str)
+        exec_string = """exec_res = stub.ListAccounts(pb2.ListAccountsRequest(search_pattern='{}'), timeout = 1)""".format(account_str)
         list_accounts_response = self.send_exec(code=exec_string)
 
         print(list_accounts_response)
 
     def log_out(self):
         print("log out")
-        exec_string = """exec_res = stub.LogOut(pb2.AccountRequest(name='{}'))""".format(self.logged_in_user)
+        exec_string = """exec_res = stub.LogOut(pb2.AccountRequest(name='{}'), timeout = 1)""".format(self.logged_in_user)
         response = self.send_exec(code=exec_string)
 
         if response.response_code == 200:
@@ -130,7 +130,7 @@ class GrpcClient():
 
     def delete_account(self, sender_id: string="-1"):
         print("delete_account")
-        exec_string = """exec_res = stub.DeleteAccount(pb2.AccountRequest(name='{}'))""".format(self.logged_in_user)
+        exec_string = """exec_res = stub.DeleteAccount(pb2.AccountRequest(name='{}'), timeout = 1)""".format(self.logged_in_user)
         response = self.send_exec(code=exec_string)
         print(response)
         if response.response_code == 200:
@@ -141,7 +141,7 @@ class GrpcClient():
 
     def get_new_message_stream(self):
         while self.logged_in_user:
-            exec_string = """exec_res = stub.GetNewMessages(pb2.GetNewMessagesRequest(sender_id='{}'))""".format(self.logged_in_user)
+            exec_string = """exec_res = stub.GetNewMessages(pb2.GetNewMessagesRequest(sender_id='{}'), timeout = 1)""".format(self.logged_in_user)
             response = self.send_exec(code=exec_string)
 
             if response.response_code == 200:

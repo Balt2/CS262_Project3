@@ -177,7 +177,7 @@ class Server:
                 print("CHANNEL: ", self.channel)
                 stub = server_messages_pb2_grpc.ServerExchangeStub(self.channel)
                 
-                response = stub.GetLogicalClock(server_messages_pb2.GetLogicalClockRequest())
+                response = stub.GetLogicalClock(server_messages_pb2.GetLogicalClockRequest(), timeout=1)
                 print("LOGICAL CLOCK: ", response.logical_clock)
                 if response.logical_clock > max_logical_clock[0]:
                     max_logical_clock = (response.logical_clock, other)
