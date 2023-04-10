@@ -199,6 +199,7 @@ class Server:
         
         db.forceInsertListOfAccounts(response.db_accounts)
         db.forceInsertListOfMessages(response.db_messages)
+        print("SERVER ALL CAUGHT UP")
         return db
 
         
