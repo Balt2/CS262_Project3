@@ -165,7 +165,7 @@ class Server:
         other_server_stubs = {}
         max_logical_clock = (-1, 0) #(logical_clock, server_number)
         for other in other_servers:
-            
+
             # connect to other servers
             server_host = config.SERVER_HOSTS[other]
             host = server_host[0]
