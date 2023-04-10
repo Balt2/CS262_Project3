@@ -15,48 +15,75 @@ class GrpcClient():
         self.logged_in_user = None
 
         # instantiate the channel
-        self.stubs = []
-        for tuple in config.SERVER_HOSTS:
-            host = tuple[0]
-            port = tuple[1]
+        self.stubs = {}
+        self.disconnected_servers = set(config.SERVER_HOSTS)
+        # for tuple in config.SERVER_HOSTS:
+        #     host = tuple[0]
+        #     port = tuple[1]
 
-            print(host, port)
-            try:
-                self.channel = grpc.insecure_channel(
-                    '{}:{}'.format(host, port))
-                stub = pb2_grpc.MessageExchangeStub(self.channel)
-                self.stubs.append(stub)
-            except:
-                print("EXCEPTION with host: ", host, " port: ", port)
-                continue
-
+        #     print(host, port)
+        #     try:
+        #         self.channel = grpc.insecure_channel(
+        #             '{}:{}'.format(host, port))
+        #         stub = pb2_grpc.MessageExchangeStub(self.channel)
+        #         self.stubs[tuple] = stub
+                
+        #     except:
+        #         print("EXCEPTION with host: ", host, " port: ", port)
+        #         self.disconnected_servers.add(tuple)
+        #         continue
+        self.connect_to_down_servers()
         #Logic to handle SIGINT
         self.SIGINT = False
         signal.signal(signal.SIGINT, self.signal_handler)
 
         self.main()
 
+    def connect_to_down_servers(self):
+        connected_servers = set()
+        for tuple in self.disconnected_servers:
+            host = tuple[0]
+            port = tuple[1]
+            try:
+                self.channel = grpc.insecure_channel(
+                    '{}:{}'.format(host, port))
+                stub = pb2_grpc.MessageExchangeStub(self.channel)
+                self.stubs[tuple] = stub
+                connected_servers.add(tuple)
+            except:
+                continue
+
+        self.disconnected_servers = self.disconnected_servers - connected_servers
 
     def send_exec(self, code):
+        self.connect_to_down_servers()
+        new_disconnects = set()
         responses = []
-        for stub in self.stubs:
+        for host_tuple, stub in self.stubs.items():
             #We do try/catch here because we may no longer be connected to a given stub
             try:
                 #We need to use exec here because we are dynamically creating the function call
                 exec(code)
             except:
+                new_disconnects.add(host_tuple)
                 continue
+
             res = locals()['exec_res']
             for r in responses:
                 if res == r:
                     return res
             responses.append(res)
 
+        for host_tuple in new_disconnects:
+            self.disconnected_servers.add(host_tuple)
+            self.stubs.pop(host_tuple)
+
         if len(responses) > 0:
             return responses[0]
         else:
             print("All servers down or unresponseive")
             return None
+        
         
     
     def create_account(self):
